@@ -12,7 +12,7 @@ redis:
   connection:
     type: standalone #单机
   standalone:
-    host: ${REDIS_HOST:127.0.0.1}
+    host: ${REDIS_HOST:172.16.0.10}
     port: ${REDIS_PORT:6379}
     useDefaultClientConfig: ${REDIS_USE_DEFAULT_CLIENT_CONFIG:true}
     clientName: ${REDIS_CLIENT_NAME:standalone}
@@ -54,7 +54,7 @@ magic4j:
 #FastDFS配置
 fdfs:
   enabled: true #启用
-  trackerServers: 172.16.xx.xx:22122
+  trackerServers: 172.16.0.10:22122
   httpServer: http://file.itgacl.com
   connectionPoolEnabled: true
 
@@ -65,9 +65,9 @@ jsch:
   ssh2:
     enabled: true #启用
     server:
-      ip: 172.10.xx.xx #服务器IP地址
-      userName: xxxx #服务器登录用户名
-      password: xxxx #服务器登录密码
+      ip: 172.16.0.10 #服务器IP地址
+      userName: root #服务器登录用户名
+      password: xdp52@@LYX #服务器登录密码
       workPath: /data/uploadFilesManager/ #服务器工作目录(上传文件的保存目录)
       port: 22 #服务器SSH连接端口号
       domain: http://file.itgacl.com/uploadFile #文件服务器IP(域名，配合nginx)
@@ -79,8 +79,8 @@ tencent:
   cos:
     enabled: true #启用
     appId: 1256200601
-    secretId: AKIDSfgdKOjqJmcz71Rxxxxxxx
-    secretKey: 51h7GVYLrYrsgoeLo2pxxxxxxx
+    secretId: AKIDSfgdKOjqJmcz71RZRAk5BBwgAB1p8A3h
+    secretKey: 51h7GVYLrYrsgoeLo2pQ6YijS1KPCDqD
     bucketName: magic4j-1256200601
     region: ap-guangzhou #广州 （中国）
     rootPath: magic4j #文件保存根目录
@@ -91,8 +91,8 @@ tencent:
 aliyun:
   oss:
     enabled: true #启用
-    accessKeyId: LTAI4G864rPigxxxxxxx #访问密钥
-    accessKeySecret: XW8LwDpC9sxxxxx #访问密钥
+    accessKeyId: LTAI4G864rPigxELF92CUzBw #访问密钥
+    accessKeySecret: XW8LwDpC9sAiTsfi2twrVzzSLzhmHi #访问密钥
     bucketName: magic4j #存储空间，存储空间是用户用于存储对象（Object）的容器，所有的对象都必须隶属于某个存储空间
     rootPath: magic4j
     endPoint: oss-cn-shenzhen.aliyuncs.com #表示OSS对外服务的访问域名，oss-accelerate.aliyuncs.com（传输加速域名（全地域上传下载加速））
@@ -103,8 +103,8 @@ aliyun:
 qiniu:
   kodo:
     enabled: true #启用
-    accessKey: emASy1O_k08IXqU9xn1JfN__xxxxx
-    secretKey: A3ub0nuF1aN4QxNATxsawT4-Sxxxxx
+    accessKey: emASy1O_k08IXqU9xn1JfN__XFgnb4MZMNGYEdOg
+    secretKey: A3ub0nuF1aN4QxNATxsawT4-S5XC284UaM8ZFEW5
     bucketName: magic4j
     rootPath: magic4j
     domain: http://kodofile.itgacl.com #kodo存储的文件的自定义访问域名，需要在阿里云控制台后台域名解析将kodofile.itgacl.com这个二级域名CNAME到kodofile-itgacl-com-idvbhh9.qiniudns.com
@@ -115,7 +115,7 @@ spring:
   mail:
     host: smtp.qq.com #发送邮件服务器
     username: 290603672@qq.com #QQ邮箱
-    password: xxxxxx #客户端授权码
+    password: aybnwmcdkoizbgdb #客户端授权码
     protocol: smtp #发送邮件协议
     properties.mail.smtp.auth: true
     properties.mail.smtp.port: 465 #端口号465
