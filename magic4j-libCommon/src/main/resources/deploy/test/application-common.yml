@@ -12,7 +12,7 @@ redis:
   connection:
     type: standalone #单机
   standalone:
-    host: ${REDIS_HOST:172.16.0.10}
+    host: ${REDIS_HOST:127.0.0.1}
     port: ${REDIS_PORT:6379}
     useDefaultClientConfig: ${REDIS_USE_DEFAULT_CLIENT_CONFIG:true}
     clientName: ${REDIS_CLIENT_NAME:standalone}
@@ -27,7 +27,7 @@ redis:
   # db index
   db: ${REDIS_DB:0}
   # db password
-  password: ${REDIS_PASSWORD:xdpGACL}
+  password: ${REDIS_PASSWORD:xdp123}
   # pool config
   pool_config:
     maxTotal: ${REDIS_POOL_CONFIG_MAX_TOTAL:128}
@@ -56,7 +56,6 @@ fdfs:
   enabled: true #启用
   trackerServers: 172.16.0.10:22122
   httpServer: http://file.itgacl.com
-  connectionPoolEnabled: true
 
 ##################################################################################
 # JSch 连接Linux服务器配置(使用JSch将上传的静态文件统一上传到远程Linux服务器) #
@@ -66,9 +65,9 @@ jsch:
     enabled: true #启用
     server:
       ip: 172.16.0.10 #服务器IP地址
-      userName: root #服务器登录用户名
-      password: xdp52@@LYX #服务器登录密码
-      workPath: /data/uploadFilesManager/ #服务器工作目录(上传文件的保存目录)
+      userName: magic4j #服务器登录用户名
+      password: magic4j #服务器登录密码
+      workPath: /home/magic4j/uploadFilesManager #服务器工作目录(上传文件的保存目录)
       port: 22 #服务器SSH连接端口号
       domain: http://file.itgacl.com/uploadFile #文件服务器IP(域名，配合nginx)
 ##################################################################################
@@ -78,10 +77,10 @@ jsch:
 tencent:
   cos:
     enabled: true #启用
-    appId: 1256200601
-    secretId: AKIDSfgdKOjqJmcz71RZRAk5BBwgAB1p8A3h
-    secretKey: 51h7GVYLrYrsgoeLo2pQ6YijS1KPCDqD
-    bucketName: magic4j-1256200601
+    appId: 12562
+    secretId: xxxxxxxxxxxx
+    secretKey: xxxxxxxxxxxx
+    bucketName: xxxxxxxxxxxx
     region: ap-guangzhou #广州 （中国）
     rootPath: magic4j #文件保存根目录
     #domain: https://magic4j-1256200601.cos.ap-guangzhou.myqcloud.com #腾讯云cos提供的访问Bucket里面的文件的默认域名
@@ -91,9 +90,9 @@ tencent:
 aliyun:
   oss:
     enabled: true #启用
-    accessKeyId: LTAI4G864rPigxELF92CUzBw #访问密钥
-    accessKeySecret: XW8LwDpC9sAiTsfi2twrVzzSLzhmHi #访问密钥
-    bucketName: magic4j #存储空间，存储空间是用户用于存储对象（Object）的容器，所有的对象都必须隶属于某个存储空间
+    accessKeyId: xxxxxxxxxxxx #访问密钥
+    accessKeySecret: xxxxxxxxxxxx #访问密钥
+    bucketName: xxxxxxxxxxxx #存储空间，存储空间是用户用于存储对象（Object）的容器，所有的对象都必须隶属于某个存储空间
     rootPath: magic4j
     endPoint: oss-cn-shenzhen.aliyuncs.com #表示OSS对外服务的访问域名，oss-accelerate.aliyuncs.com（传输加速域名（全地域上传下载加速））
     #domain: https://magic4j.oss-cn-shenzhen.aliyuncs.com 阿里云oss提供的访问Bucket里面的文件的默认域名
@@ -103,9 +102,9 @@ aliyun:
 qiniu:
   kodo:
     enabled: true #启用
-    accessKey: emASy1O_k08IXqU9xn1JfN__XFgnb4MZMNGYEdOg
-    secretKey: A3ub0nuF1aN4QxNATxsawT4-S5XC284UaM8ZFEW5
-    bucketName: magic4j
+    accessKey: xxxxxxxxxxxx
+    secretKey: xxxxxxxxxxxx
+    bucketName: xxxxxxxxxxxx
     rootPath: magic4j
     domain: http://kodofile.itgacl.com #kodo存储的文件的自定义访问域名，需要在阿里云控制台后台域名解析将kodofile.itgacl.com这个二级域名CNAME到kodofile-itgacl-com-idvbhh9.qiniudns.com
 
@@ -114,15 +113,15 @@ qiniu:
 spring:
   mail:
     host: smtp.qq.com #发送邮件服务器
-    username: 290603672@qq.com #QQ邮箱
-    password: aybnwmcdkoizbgdb #客户端授权码
+    username: xxxxxxxxxxxx@qq.com #QQ邮箱
+    password: xxxxxxxxxxxx #客户端授权码
     protocol: smtp #发送邮件协议
     properties.mail.smtp.auth: true
     properties.mail.smtp.port: 465 #端口号465
-    properties.mail.display.sendmail: smartfast4j(孤傲苍狼) #可以任意
-    properties.mail.display.sendname: smartfast4j Email #可以任意
+    properties.mail.display.sendmail: magic4j(孤傲苍狼) #可以任意
+    properties.mail.display.sendname: magic4j Email #可以任意
     properties.mail.smtp.starttls.enable: true
     properties.mail.smtp.starttls.required: true
     properties.mail.smtp.ssl.enable: true
     default-encoding: utf-8
-    from: 290603672@qq.com #与上面的username保持一致
+    from: xxxxxxxxxxxx@qq.com #与上面的username保持一致

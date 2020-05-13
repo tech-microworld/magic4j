@@ -9,7 +9,7 @@ spring:
   profiles:
      include: common #引入外部yml配置文件：application-common.yml，application-common.yml的前缀一定要和主配置文件application.yml的名字一致
   datasource:
-    url: jdbc:mysql://${DATASOURCE_URL:172.16.0.17:12345/magic4j}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://${DATASOURCE_URL:127.0.0.1:12345/magic4j}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ${DATASOURCE_USERNAME:root}
     password: ${DATASOURCE_PASSWORD:123456}
     driver-class-name: com.mysql.cj.jdbc.Driver
