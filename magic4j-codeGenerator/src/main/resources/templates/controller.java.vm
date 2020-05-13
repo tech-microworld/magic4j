@@ -1,0 +1,158 @@
+package ${package.Controller};
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.itgacl.magic4j.common.base.SuperController;
+import com.itgacl.magic4j.libcommon.annotation.Auth;
+import com.itgacl.magic4j.libcommon.annotation.Log;
+import com.itgacl.magic4j.libcommon.bean.R;
+import com.itgacl.magic4j.libcommon.constant.Constants;
+
+import ${package.Service}.${table.serviceName};
+#if(${package.ModuleName})
+import com.itgacl.magic4j.modules.${package.ModuleName}.entity.${entity};
+import com.itgacl.magic4j.modules.${package.ModuleName}.dto.${entity}DTO;
+#else
+import com.itgacl.magic4j.entity.${entity};
+import com.itgacl.magic4j.dto.${entity}DTO;
+#end
+
+import cn.hutool.core.collection.CollectionUtil;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+/**
+ * @Classname ${table.controllerName}
+ * @Description $!{table.comment} Controller
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+@Auth(name = "${entity}管理")//在类上标注了@Auth注解后这个类下的所有接口将被AuthInterceptor拦截进行访问权限控制
+@RestController
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+public class ${table.controllerName} extends ${superControllerClass}{
+
+    @Autowired
+    private ${table.serviceName} ${table.entityPath}Service;
+
+    /**
+     * 创建
+     * @param ${table.entityPath}
+     * @return
+     */
+    @Log(operation="创建",remark = "创建${entity}",moduleName = "${entity}管理") //在方法上标注@Log注解用于记录操作日志
+    @PostMapping
+    public R create(@RequestBody @Validated(Constants.Create.class) ${entity}DTO ${table.entityPath}){
+        ${table.entityPath}Service.create(${table.entityPath});
+        return R.ok();
+    }
+
+    /**
+     * 更新
+     * @param ${table.entityPath}
+     * @return
+     */
+    @Log(operation="修改",remark = "修改${entity}",moduleName = "${entity}管理")
+    @PutMapping
+    public R update(@RequestBody @Validated(Constants.Update.class) ${entity}DTO ${table.entityPath}){
+        ${table.entityPath}Service.update(${table.entityPath});
+        return R.ok();
+    }
+
+#foreach($field in ${table.fields})
+    #if(${field.keyFlag})
+    /**
+     * 根据ID查找
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R get(@PathVariable("id") ${field.propertyType} id){
+        ${entity}DTO ${table.entityPath}DTO = ${table.entityPath}Service.get${entity}ById(id);
+        return R.ok(${table.entityPath}DTO);
+    }
+    #end
+#end
+
+    /**
+     * 查询全部
+     * @return
+     */
+    @GetMapping
+    public R get() {
+        List<${entity}DTO> ${table.entityPath}List = ${table.entityPath}Service.getList(null);
+        return R.ok(${table.entityPath}List);
+    }
+#foreach($field in ${table.fields})
+    #if(${field.keyFlag})
+
+    /**
+    * 根据ID批量删除
+    * @param ids
+    * @return
+    */
+    @Log(operation="删除",remark = "根据ID删除${entity}",moduleName = "${entity}管理")
+    @DeleteMapping("/{ids}")
+    public R batchDelete(@PathVariable("ids") ${field.propertyType}[] ids){
+        if(ids.length==1){
+            ${table.entityPath}Service.deleteById(ids[0]);
+        }else {
+            List<${field.propertyType}> idList = Arrays.asList(ids);
+            ${table.entityPath}Service.deleteByIds(idList);
+        }
+        return R.ok();
+    }
+    #end
+#end
+#foreach($field in ${table.fields})
+    #if(${field.keyFlag})
+
+    /**
+     * 根据ID列表批量删除
+     * ids=[18,19,20]
+     * @return
+     */
+    @Log(operation="删除",remark = "根据ID列表批量删除${entity}",moduleName = "${entity}管理")
+    @DeleteMapping
+    public R delete(@RequestBody ${field.propertyType}[] ids){
+        List<Long> idList = Arrays.asList(ids);
+        ${table.entityPath}Service.deleteByIds(idList);
+        return R.ok();
+    }
+    #end
+#end
+
+    /**
+      * 分页查询
+      * @return
+      */
+    @GetMapping(value = "/list")
+    public R pageList(${entity}DTO ${table.entityPath}DTO){
+        //构建查询条件
+        QueryWrapper<${entity}> queryWrapper = buildQueryWrapper(${table.entityPath}DTO);
+        Page<${entity}> page = getPage();//获取mybatisPlus分页对象
+        IPage<${entity}> pageInfo = ${table.entityPath}Service.page(page,queryWrapper);//mybatisPlus分页查询
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("total", pageInfo.getTotal());//总记录数
+        dataMap.put("rows", pageInfo.getRecords());//列表数据
+        dataMap.put("pages", pageInfo.getPages());//总页数
+        return R.ok(dataMap);
+    }
+
+    /**
+     * 构建查询条件QueryWrapper
+     * @param ${table.entityPath}DTO
+     * @return
+     */
+    private QueryWrapper<${entity}> buildQueryWrapper(${entity}DTO ${table.entityPath}DTO) {
+        QueryWrapper<${entity}> queryWrapper = new QueryWrapper<>();
+        // todo 构建查询条件
+        return queryWrapper;
+    }
+}

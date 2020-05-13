@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itgacl.magic4j.modules.sys.mapper.SysDeptMapper" >
+  <!--
+    把Mapper类的扩展方法的sql语句放在这个文件里面
+  -->
+
+  <select id="queryList" resultType="com.itgacl.magic4j.modules.sys.entity.ext.SysDeptExt">
+    select t1.*,(select t2.dept_name from sys_dept t2 where t2.id=t1.parent_id) parentDeptName from sys_dept t1 where
+    t1.delete_flag = 0
+  </select>
+</mapper>

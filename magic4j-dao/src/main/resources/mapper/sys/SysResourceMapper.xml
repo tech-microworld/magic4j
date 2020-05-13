@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itgacl.magic4j.modules.sys.mapper.SysResourceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.itgacl.magic4j.modules.sys.entity.SysResource">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="parent_id" property="parentId" />
+        <result column="parent_name" property="parentName" />
+        <result column="url" property="url" />
+        <result column="icon" property="icon" />
+        <result column="perms" property="perms" />
+        <result column="type" property="type" />
+        <result column="order_num" property="orderNum" />
+        <result column="level" property="level" />
+        <result column="remark" property="remark" />
+        <result column="create_user" property="createUser" />
+        <result column="create_time" property="createTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="update_time" property="updateTime" />
+        <result column="delete_flag" property="deleteFlag" />
+        <result column="request_types" property="requestTypes" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, parent_id, parent_name, url, icon, perms, type, order_num, level, remark, create_user, create_time, update_user, update_time, delete_flag, request_types
+    </sql>
+
+    <select id="selectMenuResList" resultMap="BaseResultMap">
+        select r.id, r.name, r.parent_id, r.parent_name, r.url, r.icon, r.perms, r.type, r.order_num, r.level, r.remark, r.create_user, r.create_time, r.update_user, r.update_time, r.request_types
+        from sys_resource r
+        left join sys_role_resource srr on r.id = srr.resource_id
+        left join sys_user_role ur on srr.role_id = ur.role_id
+        left join sys_role ro on ur.role_id = ro.id
+        where ur.user_id = #{userId} AND r.type!=0 AND r.delete_flag=0
+        <if test="name != null and name != ''">
+            AND r.name like concat('%', #{name}, '%')
+        </if>
+        order by r.order_num asc
+    </select>
+
+</mapper>

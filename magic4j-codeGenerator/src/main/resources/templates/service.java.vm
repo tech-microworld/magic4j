@@ -1,0 +1,40 @@
+package ${package.Service};
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+#if(${package.ModuleName})
+import com.itgacl.magic4j.modules.${package.ModuleName}.dto.${entity}DTO;
+#else
+import com.itgacl.magic4j.dto.${entity}DTO;
+#end
+import ${package.Entity}.${entity};
+
+import java.util.List;
+
+/**
+ * @Classname ${table.serviceName}
+ * @Description $!{table.comment} Service
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+public interface ${table.serviceName} extends IService<${entity}> {
+
+    void create(${entity}DTO ${table.entityPath}DTO);
+
+    void update(${entity}DTO ${table.entityPath}DTO);
+#foreach($field in ${table.fields})
+    #if(${field.keyFlag}) ##主键字段
+
+    void deleteById(${field.propertyType} id);
+
+    void deleteByIds(List<${field.propertyType}> idList);
+
+    ${entity}DTO get${entity}ById(${field.propertyType} id);
+    #end
+#end
+
+    void deleteAll();
+
+    List<${entity}DTO> getList(QueryWrapper<${entity}> queryWrapper);
+}

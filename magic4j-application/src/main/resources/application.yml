@@ -1,0 +1,91 @@
+server:
+  port: ${SERVER_PORT:8888} #服务启动使用端口
+  #默认情况下，SpringBoot允许的http请求header的最大值是8192个字节（8KB）
+  max-http-header-size: 65536 #设置允许的最大Http请求头字节数，解决【terminated as request header was larger than 8192 Failed to parse request】 问题
+spring:
+  application:
+    name: magic4j-application
+  profiles:
+     include: common #引入外部yml配置文件：application-common.yml，application-common.yml的前缀一定要和主配置文件application.yml的名字一致
+  datasource:
+    url: jdbc:p6spy:mysql://127.0.0.1:3506/magic4j?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai #DB连接添加serverTimezone=Asia/Shanghai配置解决mysql插入时间比实际时间少了八个小时的问题
+    username: root
+    password: abcd1234
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximumPoolSize: ${SPRING_DATASOURCE_MAXIMUM_POOL_SIZE:20}
+  aop:
+    auto: true
+    proxy-target-class: true
+
+#逻辑删除配置
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: delete_flag  #全局逻辑删除字段值
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis-config.xml
+  #XML文件所在目录
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+
+# Spring CORS 跨域配置
+cors:
+   mappings:
+     # Intercept path
+      "[/api/**]":
+         allowed-origins: "*"
+         allowed-methods: "*"
+         allowed-headers: "*"
+         max-age: "1800"
+         allow-credentials: "true"
+
+#magic4j开发平台的相关配置统一以magic4j为前缀
+magic4j:
+  authPermission: true #是否进行权限校验
+  #文件上传临时保存目录
+  fileUpload:
+    tempSavePath: C:/fileUploadTempSaveDir
+  #文件存储方式
+  storage:
+    local:
+      fileSavePath: C:/data/htdocs/magic4j/uploadFilesManager #上传文件本地保存目录
+      fileUrlPathPattern: /file/*   #上传到本地服务器的文件的访问映射
+  #缓存类型配置
+  cache:
+    # caffeine or redis
+    type: ${CACHE_TYPE:caffeine}
+  #logback日志配置
+  log:
+    path: ${MAGIC4J_LOG_PATH:G:/logs} #日志文件的存放路径
+    level: ${MAGIC4J_LOG_LEVEL:debug} #日志打印级别
+  #数据权限控制开关
+  dataScope:
+    enabled: true #开启数据权限过滤(true:开启，false：关闭)
+  #多租户配置
+  tenant:
+    ignoreTenantTables: #没有带tenant_id的表需要忽略
+      - sys_tenant
+      - sys_resource
+      - sys_user_role
+      - sys_role_resource
+      - sys_role_dept
+      - sys_dict
+      - sys_cn_area
+      - schedule_job
+      - schedule_job_log
+      - sys_user_post
+    tenantIdColumn: tenant_id #租户ID字段名称
+    enabled: true #开启多租户模式(true:开启，false：关闭)
+  # jwtToken配置
+  jwt:
+    authorization: Authorization # 令牌自定义标识
+    tokenExpirationTime: ${JWT_TOKEN_EXPIRATION_TIME:9000} # 9000 Number of seconds (2.5 hours)
+    refreshTokenExpTime: ${JWT_REFRESH_TOKEN_EXPIRATION_TIME:604800} # Number of seconds (1 week)
+    tokenIssuer: ${JWT_TOKEN_ISSUER:magic4j.itgacl.com}
+    tokenSigningKey: ${JWT_TOKEN_SIGNING_KEY:itgaclDefaultSigningKey}
+    enabled: true #是否启用jwt
+  #允许删除全部数据的表
+  allowDeleteAllTables: sys_log,schedule_job_log

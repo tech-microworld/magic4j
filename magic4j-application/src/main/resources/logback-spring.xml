@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--去掉logback自身调试信息：将logback.xml配置文件的configuration元素debug属性的值改成 false
+ debug 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。-->
+<configuration debug="false" scan="true" scanPeriod="30 seconds">
+    <!--读取application.yml配置文件中的变量-->
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+    <springProperty scope="context" name="appPort" source="server.port"/>
+    <springProperty scope="context" name="defaultAppPort" source="spring.application.port"/>
+    <springProperty scope="context" name="logPath" source="magic4j.log.path"/>
+    <springProperty scope="context" name="logLevel" source="magic4j.log.level"/>
+
+    <!--引用上述定义的springProperty变量：logPath、appName、appPort、defaultAppPort
+    ${logPath:-./logs}表示引用logPath这个springProperty变量的值，如果引用的logPath没有值，就是使用默认值./logs
+    -->
+    <property name="LOG_PATH" value="${logPath:-./logs}" />
+    <property name="LOG_Level" value="${logLevel:-info}" />
+    <property name="APP_NAME" value="${appName:-system}" />
+    <property name="APP_PORT" value="${appPort:-${defaultAppPort}}" />
+
+    <!--控制台输出日志信息-->
+    <appender name="CONSOLE-LOG" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are  by default assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度，%msg：日志消息，%n是换行符 -->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %level [%class:%line] %m%n</pattern>
+            <!-- 此处设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+
+    </appender>
+
+    <!-- 输出error级别的日志到error.log文件中 -->
+    <appender name="ERROR-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-${APP_PORT}/error.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %level [%class:%line] %m%n</pattern>
+            <!-- 此处设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-${APP_PORT}/error.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 输出info级别的日志到info.log文件中 -->
+    <appender name="INFO-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--<file>C:/data/logFrameworkSummary/logs/logbackSummary/info.log</file>-->
+        <file>${LOG_PATH}/${APP_NAME}-${APP_PORT}/info.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %level [%class:%line] %m%n</pattern>
+            <!-- 此处设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-${APP_PORT}/info.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="DEBUG-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-${APP_PORT}/debug.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %level [%class:%line] %m%n</pattern>
+            <!-- 此处设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-${APP_PORT}/debug.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.hibernate" level="WARN" />
+    <logger name="org.quartz" level="WARN" />
+    <logger name="com.zaxxer.hikari" level="WARN" />
+    <logger name="com.baomidou.mybatisplus" level="WARN" />
+
+    <root level="${LOG_Level}">
+        <appender-ref ref="CONSOLE-LOG" />
+        <appender-ref ref="ERROR-LOG" />
+        <appender-ref ref="INFO-LOG" />
+        <appender-ref ref="DEBUG-LOG" />
+    </root>
+</configuration>

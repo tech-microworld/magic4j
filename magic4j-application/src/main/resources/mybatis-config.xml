@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!--配置mybatis拦截器的执行顺序-->
+	<plugins>
+		<!--<plugin interceptor="com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor"/>-->
+		<plugin interceptor="com.itgacl.magic4j.common.datascope.DataScopeInterceptor"/>
+	</plugins>
+</configuration>

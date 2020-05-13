@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itgacl.magic4j.modules.sys.mapper.SysFileMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.itgacl.magic4j.modules.sys.entity.SysFile">
+        <id column="id" property="id" />
+        <result column="original_file_name" property="originalFileName" />
+        <result column="new_file_name" property="newFileName" />
+        <result column="save_path" property="savePath" />
+        <result column="file_url" property="fileUrl" />
+        <result column="file_suffix" property="fileSuffix" />
+        <result column="storage_type" property="storageType" />
+        <result column="file_length" property="fileLength" />
+        <result column="file_md5" property="fileMd5" />
+        <result column="use_time" property="useTime" />
+        <result column="descDetail" property="descDetail" />
+        <result column="create_time" property="createTime" />
+        <result column="create_user" property="createUser" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="delete_flag" property="deleteFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, original_file_name, new_file_name, save_path, file_url, file_suffix, storage_type, file_length, file_md5, use_time, descDetail, create_time, create_user, update_time, update_user, delete_flag
+    </sql>
+
+</mapper>

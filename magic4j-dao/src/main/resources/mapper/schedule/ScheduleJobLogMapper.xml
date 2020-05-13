@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itgacl.magic4j.modules.schedule.mapper.ScheduleJobLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.itgacl.magic4j.modules.schedule.entity.ScheduleJobLog">
+        <id column="id" property="id" />
+        <result column="job_id" property="jobId" />
+        <result column="job_name" property="jobName" />
+        <result column="bean_name" property="beanName" />
+        <result column="method_name" property="methodName" />
+        <result column="params" property="params" />
+        <result column="status" property="status" />
+        <result column="error" property="error" />
+        <result column="times" property="times" />
+        <result column="server_ip" property="serverIp" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, job_id, job_name, bean_name, method_name, params, status, error, times, server_ip, create_time
+    </sql>
+    <delete id="deleteAll">
+        DELETE FROM schedule_job_log
+    </delete>
+
+</mapper>

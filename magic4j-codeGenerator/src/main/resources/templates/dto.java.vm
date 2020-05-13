@@ -1,0 +1,29 @@
+#if(${package.ModuleName})
+package com.itgacl.magic4j.modules.${package.ModuleName}.dto;
+#else
+import com.itgacl.magic4j.dto;
+#end
+import com.itgacl.magic4j.common.base.BaseDTO;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+/**
+ * @Classname ${entity}DTO
+ * @Description ${entity}的数据传输对象（DTO)(Data Transfer Object)
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+@Data
+public class ${entity}DTO extends BaseDTO implements Serializable{
+
+#foreach($field in ${table.fields})
+    #if(!${field.keyFlag}) ##不生成主键字段，主键字段的定义在父类BaseDTO当中
+    private ${field.propertyType} ${field.propertyName};
+
+    #end
+#end
+
+}

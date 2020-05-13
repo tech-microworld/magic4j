@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.itgacl.cloud.storage.AliyunOssAutoConfiguration,\
+com.itgacl.cloud.storage.TencentCosAutoConfiguration,\
+com.itgacl.cloud.storage.QiniuKodoAutoConfiguration

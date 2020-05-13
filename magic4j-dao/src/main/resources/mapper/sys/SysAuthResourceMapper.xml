@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itgacl.magic4j.modules.sys.mapper.SysAuthResourceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.itgacl.magic4j.modules.sys.entity.SysAuthResource">
+        <id column="id" property="id" />
+        <result column="controller_class_name" property="controllerClassName" />
+        <result column="method_name" property="methodName" />
+        <result column="method_param" property="methodParam" />
+        <result column="request_url" property="requestUrl" />
+        <result column="request_types" property="requestTypes" />
+        <result column="perm_flags" property="permFlags" />
+        <result column="group_name" property="groupName" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, controller_class_name, method_name, method_param, request_url, request_types, perm_flags, group_name, create_time, update_time
+    </sql>
+
+</mapper>

@@ -1,0 +1,124 @@
+package ${package.ServiceImpl};
+
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import ${superServiceImplClassPackage};
+#if(${package.ModuleName})
+import com.itgacl.magic4j.modules.${package.ModuleName}.dto.${entity}DTO;
+#else
+import com.itgacl.magic4j.dto.${entity}DTO;
+#end
+import com.itgacl.magic4j.common.enums.ErrorCodeEnum;
+import com.itgacl.magic4j.common.util.AssertUtil;
+import com.itgacl.magic4j.common.validator.DataValidator;
+import ${package.Entity}.${entity};
+import ${package.Mapper}.${table.mapperName};
+import ${package.Service}.${table.serviceName};
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Classname ${table.serviceImplName}
+ * @Description ${table.serviceName}实现类
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+@Service
+public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${entity}> implements ${table.serviceName} {
+
+    @Override
+    public void create(${entity}DTO ${table.entityPath}DTO) {
+        dataValidator.validate(${table.entityPath}DTO);//业务处理校验
+        ${entity} ${table.entityPath} = new ${entity}();
+        BeanUtils.copyProperties(${table.entityPath}DTO,${table.entityPath});
+        save(${table.entityPath});//保存
+    }
+
+    @Override
+    public void update(${entity}DTO ${table.entityPath}DTO) {
+        dataValidator.validate(${table.entityPath}DTO);//业务处理校验
+        ${entity} ${table.entityPath} = new ${entity}();
+        BeanUtils.copyProperties(${table.entityPath}DTO,${table.entityPath});
+        updateById(${table.entityPath});
+    }
+#foreach($field in ${table.fields})
+#if(${field.keyFlag}) ##主键字段
+
+    @Override
+    public void deleteById(${field.propertyType} id) {
+        removeById(id);//逻辑删除
+    }
+
+    @Override
+    public void deleteByIds(List<${field.propertyType}> idList) {
+        removeByIds(idList);//逻辑删除
+    }
+
+    @Override
+    public ${entity}DTO get${entity}ById(${field.propertyType} id) {
+        ${entity} ${table.entityPath} = getById(id);
+        AssertUtil.notNull(ErrorCodeEnum.DATA_NOT_EXIST,${table.entityPath});
+        ${entity}DTO ${table.entityPath}DTO = new ${entity}DTO();
+        BeanUtils.copyProperties(${table.entityPath},${table.entityPath}DTO);
+        return ${table.entityPath}DTO;
+    }
+#end
+#end
+
+    @Override
+    public void deleteAll() {
+        remove(null);//全部删除(逻辑删除)
+    }
+
+    @Override
+    public List<${entity}DTO> getList(QueryWrapper<${entity}> queryWrapper) {
+        List<${entity}DTO> ${table.entityPath}DTOList = new ArrayList<>();
+        List<${entity}> ${table.entityPath}List = list(queryWrapper);
+        if(CollectionUtil.isNotEmpty(${table.entityPath}List)){
+            ${table.entityPath}List.forEach(${table.entityPath} -> {
+                ${entity}DTO ${table.entityPath}DTO = new ${entity}DTO();
+                BeanUtils.copyProperties(${table.entityPath},${table.entityPath}DTO);
+                ${table.entityPath}DTOList.add(${table.entityPath}DTO);
+            });
+        }
+        return ${table.entityPath}DTOList;
+    }
+
+    /**
+     * 数据校验器
+     */
+    private DataValidator<${entity}DTO> dataValidator = new DataValidator<${entity}DTO>(){
+
+        /**
+        * 数据合法性校验(非空、数据格式等)
+        * @param data
+        */
+        @Override
+        protected void validateData(${entity}DTO data) {
+            //todo:在这里编写数据校验处理逻辑，如果校验不通过，抛出DataValidationException异常
+            // throw new DataValidationException("校验不通过抛出的错误提示消息");
+        }
+
+        /**
+         * 保存之前进行校验(例如：数据是否已存在校验)
+         * @param data
+         */
+        @Override
+        protected void beforeCreate(${entity}DTO data) {
+
+        }
+
+        /**
+         * 更新之前进行校验(例如：数据是否已存在校验)
+         * @param data
+         */
+        @Override
+        protected void beforeUpdate(${entity}DTO data) {
+
+        }
+    };
+}
