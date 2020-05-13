@@ -153,8 +153,8 @@ qq交流群：938107164
 手机：13822290843
 邮箱：290603672@qq.com
 
-<img src="http://blog.itgacl.com/upload/2020/5/wxQrCode-122aa7a8d56b47e8bab06e0dc1fc3fb1.jpg" width="100px" height="100px"/>
-<img src="http://blog.itgacl.com/upload/2020/5/qqQrCode-607009b34b424d359cff4499ca75ca51.jpg" width="100px" height= "100px"/>
+<img src="http://blog.itgacl.com/upload/2020/5/wxQrCode-122aa7a8d56b47e8bab06e0dc1fc3fb1.jpg" width="300px" height="300px"/>
+<img src="http://blog.itgacl.com/upload/2020/5/qqQrCode-607009b34b424d359cff4499ca75ca51.jpg" width="300px" height= "300px"/>
 
 
 
