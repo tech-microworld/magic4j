@@ -256,18 +256,6 @@
 				<artifactId>hutool-all</artifactId>
 				<version>${hutool.version}</version>
 			</dependency>
-			<!--引入封装好的fastdfs-client-->
-			<dependency>
-				<groupId>com.itgacl</groupId>
-				<artifactId>fastdfs-client</artifactId>
-				<version>${fastdfs-client.version}</version>
-			</dependency>
-			<!--引入封装好的jsch-->
-			<dependency>
-				<groupId>com.itgacl</groupId>
-				<artifactId>jsch</artifactId>
-				<version>${jsch.version}</version>
-			</dependency>
 			<!-- 拼音转换处理-->
 			<dependency>
 				<groupId>com.github.stuxuhai</groupId>
