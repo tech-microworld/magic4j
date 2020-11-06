@@ -236,9 +236,9 @@ public class Magic4jCodeGenerator {
                     }
                 })
                 .setDriverName("com.mysql.cj.jdbc.Driver")
-                .setUsername("root")
+                .setUsername("magic4j")
                 .setPassword("abcd1234")
-                .setUrl("jdbc:mysql://47.112.148.23:3506/xdp?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+                .setUrl("jdbc:mysql://127.0.0.1:3306/xdp?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
     }
 
     /**
