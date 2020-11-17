@@ -1,8 +1,10 @@
 package com.itgacl.magic4j.modules.sys.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itgacl.magic4j.common.cache.sys.SysCache;
 import com.itgacl.magic4j.modules.sys.dto.SysUserPostDTO;
 import com.itgacl.magic4j.common.enums.ErrorCodeEnum;
 import com.itgacl.magic4j.common.util.AssertUtil;
@@ -15,7 +17,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Classname SysUserPostServiceImpl
@@ -95,6 +99,25 @@ public class SysUserPostServiceImpl extends ServiceImpl<SysUserPostMapper, SysUs
             sysUserPosts.add(post);
         });
         saveBatch(sysUserPosts);//批量保存
+    }
+
+    @Override
+    public String getUserPostNames(Long sysUserId) {
+        List<SysUserPost> postList = query().select(SysUserPost.POST_ID).eq(SysUserPost.USER_ID, sysUserId).list();
+        Set<Long> postIdSet = new HashSet<>();
+        postList.forEach(item -> {
+            postIdSet.add(item.getPostId());
+        });
+        String postIds = "";
+        for (Long id : postIdSet) {
+            postIds += id + ",";
+        }
+        String postNames = "";
+        if (StrUtil.isNotBlank(postIds)) {
+            postIds = postIds.substring(0, postIds.length() - 1);
+            postNames = SysCache.getPostNames(postIds);
+        }
+        return postNames;
     }
 
     /**

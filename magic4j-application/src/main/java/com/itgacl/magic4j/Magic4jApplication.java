@@ -4,9 +4,14 @@ import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.itgacl.cloud.storage.annotation.EnableCos;
+import com.itgacl.cloud.storage.annotation.EnableKodo;
+import com.itgacl.cloud.storage.annotation.EnableOss;
+import com.itgacl.fastdfs.annotation.EnableFastDFS;
 import com.itgacl.magic4j.common.config.MvcCorsProperties;
 import com.itgacl.magic4j.libcommon.filter.RequestDecryptFilter;
 import com.itgacl.magic4j.libcommon.util.RemotingUtil;
+import com.itgacl.ssh2.jsch.annotation.EnableSFTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -29,7 +34,12 @@ import java.util.List;
 /**
  * 注：为了避免扫描路径不一致，将启动类放在Root Package 即 com.itgacl
  */
-@EnableTransactionManagement// 启注解事务管理，等同于xml配置方式的 <tx:annotation-driven />
+//@EnableCos
+//@EnableKodo
+//@EnableOss
+//@EnableSFTP
+//@EnableFastDFS
+@EnableTransactionManagement
 @SpringBootApplication
 public class Magic4jApplication {
 

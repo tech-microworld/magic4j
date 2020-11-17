@@ -1,0 +1,49 @@
+#if(${package.ModuleName})
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo;
+#else
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo;
+#end
+
+#foreach($pkg in ${table.importPackages})
+import ${pkg};
+#end
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.bean.TreeNode;
+import lombok.Data;
+#if(${swagger2})
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+#end
+
+/**
+ * @Classname ${entity}TreeVo
+ * @Description ${entity}的树形结构展示对象
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+#if(${swagger2})
+@ApiModel(value="${entity}对象TreeVo")
+#end
+@Data
+public class ${entity}TreeVo extends TreeNode<${entity}TreeVo,Long>  implements Serializable{
+
+    #foreach($field in ${table.fields})
+        #if(!${field.keyFlag}) ##不生成主键字段，主键字段的定义在父类TreeNode当中
+            #if(!${field.fill}) ##不是自动填充字段
+                #if(${field.propertyName}!=${cfg.pId})
+                #if("$!field.comment" != "")
+                    #if(${swagger2})
+    @ApiModelProperty(value = "${field.comment}")
+                    #else
+    /**
+     * ${field.comment}
+     */
+                    #end
+                #end
+     private ${field.propertyType} ${field.propertyName};
+                #end
+            #end
+        #end
+    #end
+
+}

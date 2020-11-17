@@ -12,6 +12,10 @@ import com.itgacl.magic4j.modules.sys.service.SysResourceService;
 import com.itgacl.magic4j.modules.sys.service.SysRoleService;
 import com.itgacl.magic4j.modules.sys.vo.SysResourceVo;
 import com.itgacl.magic4j.modules.sys.vo.TreeSelectVo;
+import com.itgacl.magic4j.modules.sys.vo.VueRouterVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +26,7 @@ import java.util.*;
  *
  * @author 孤傲苍狼
  */
+@Api(tags = "系统资源管理")
 @Auth(name = "系统资源") //在类上标注了@Auth注解后这个类下的所有接口都需要做访问权限控制
 @RestController
 @RequestMapping("/api/sys/resource")
@@ -41,10 +46,11 @@ public class SysResourceController extends SuperController {
      * @param sysResource
      * @return
      */
+    @ApiOperation("新增")
     @PostMapping
-    public R create(@RequestBody @Validated(Constants.Create.class) SysResourceDTO sysResource){
+    public R<Void> create(@RequestBody @Validated(Constants.Create.class) SysResourceDTO sysResource){
         sysResourceService.create(sysResource);
-        return R.ok("创建成功");
+        return R.ok();
     }
 
     /**
@@ -52,10 +58,11 @@ public class SysResourceController extends SuperController {
      * @param sysResource
      * @return
      */
+    @ApiOperation("修改")
     @PutMapping
-    public R update(@RequestBody @Validated(Constants.Update.class) SysResourceDTO sysResource){
+    public R<Void> update(@RequestBody @Validated(Constants.Update.class) SysResourceDTO sysResource){
         sysResourceService.update(sysResource);
-        return R.ok("修改成功");
+        return R.ok();
     }
 
     /**
@@ -63,9 +70,10 @@ public class SysResourceController extends SuperController {
      * @param id
      * @return
      */
+    @ApiOperation("根据ID查找")
     @GetMapping("/{id}")
     @Auth(isAuth = false)//不进行权限控制
-    public R get(@PathVariable("id") Long id){
+    public R<SysResourceDTO> get(@PathVariable("id") Long id){
         SysResourceDTO sysResourceDTO = sysResourceService.getSysResourceById(id);
         return R.ok(sysResourceDTO);
     }
@@ -74,9 +82,10 @@ public class SysResourceController extends SuperController {
      * 查询全部
      * @return
      */
+    @ApiOperation("查询全部")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping
-    public R get() {
+    public R<List<SysResourceDTO>> get() {
         List<SysResourceDTO> sysResourceList = sysResourceService.getList(null);
         return R.ok(sysResourceList);
     }
@@ -87,8 +96,9 @@ public class SysResourceController extends SuperController {
      * @return
      * @throws Exception
      */
+    @ApiOperation("根据ID删除")
     @DeleteMapping("/{ids}")
-    public R delete(@PathVariable("ids") Long[] ids){
+    public R<Void> delete(@PathVariable("ids") Long[] ids){
         if(ids.length==1){
             sysResourceService.deleteById(ids[0]);
         }else {
@@ -102,9 +112,10 @@ public class SysResourceController extends SuperController {
      * 获取资源树列表
      * @return
      */
+    @ApiOperation("获取资源树列表")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/tree")
-    public R getResourceTreeList(){
+    public R<List<SysResourceVo>> getResourceTreeList(){
         return R.ok(sysResourceService.getResourceTreeList());
     }
 
@@ -113,9 +124,10 @@ public class SysResourceController extends SuperController {
      * @param id
      * @return
      */
+    @ApiOperation("根据资源ID获取资源信息以及子资源信息")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/tree/{id}")
-    public R getResourceTreeById(@PathVariable("id") Long id) {
+    public R<SysResourceVo> getResourceTreeById(@PathVariable("id") Long id) {
         return R.ok(sysResourceService.getResourceTreeById(id));
     }
 
@@ -125,9 +137,11 @@ public class SysResourceController extends SuperController {
      * @param type 类型（0：系统资源 1：菜单   2：按钮）
      * @return
      */
+    @ApiOperation("获取用户所拥有的资源列表")
+    @ApiImplicitParam(name = "type",value = "类型（0：系统资源 1：菜单   2：按钮）")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/{sysUserId}/res")
-    public R getUserResourceList(@PathVariable("sysUserId") Long userId,@RequestParam(required = false) Integer type){
+    public R<List<SysResourceVo>> getUserResourceList(@PathVariable("sysUserId") Long userId,@RequestParam(required = false) Integer type){
         return R.ok(sysResourceService.getUserResourceList(userId,type));
     }
 
@@ -136,9 +150,11 @@ public class SysResourceController extends SuperController {
      * @param userId
      * @return
      */
+    @ApiOperation("获取用户所拥有的资源树列表")
+    @ApiImplicitParam(name = "type",value = "类型（0：系统资源 1：菜单   2：按钮）")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/{sysUserId}/res/tree")
-    public R getUserResourceTreeList(@PathVariable("sysUserId") Long userId,@RequestParam(required = false) Integer type){
+    public R<List<SysResourceVo>> getUserResourceTreeList(@PathVariable("sysUserId") Long userId,@RequestParam(required = false) Integer type){
         List<SysResourceVo> resourceVoList = sysResourceService.getUserResourceList(userId,type);
         return R.ok(TreeUtil.buildTree(resourceVoList));
     }
@@ -147,9 +163,10 @@ public class SysResourceController extends SuperController {
      * 获取登录用户所拥有的授权资源树列表
      * @return
      */
+    @ApiOperation("获取登录用户所拥有的授权资源树列表")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/authRes/list")
-    public R getAuthResourceTreeList(){
+    public R<List<SysResourceVo>> getAuthResourceTreeList(){
         List<SysResourceVo> resourceVoList = sysResourceService.getUserResourceList(getLoginUserId(),Constants.RESOURCE_TYPE.SYS_AUTH_RESOURCE);
         return R.ok(TreeUtil.buildTree(resourceVoList));
     }
@@ -159,9 +176,10 @@ public class SysResourceController extends SuperController {
      *
      * @return 路由信息
      */
+    @ApiOperation("获取Vue路由信息")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/getRouters")
-    public R getRouters() {
+    public R<List<VueRouterVo>> getRouters() {
         List<SysResourceVo> resourceVoList = sysResourceService.getUserResourceList(getLoginUserId(),Constants.RESOURCE_TYPE.MENU);
         return R.ok(sysResourceService.buildVueMenu(resourceVoList));
     }
@@ -171,9 +189,10 @@ public class SysResourceController extends SuperController {
      *
      * @return 系统菜单
      */
+    @ApiOperation("获取系统菜单树")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/menu/list")
-    public R getSysResourceList(String name) {
+    public R<List<SysResourceVo>> getSysResourceList(String name) {
         List<SysResourceVo> treeList = TreeUtil.buildTree(sysResourceService.getMenuResList(getLoginUserId(), name));
         return R.ok(treeList);
     }
@@ -183,9 +202,10 @@ public class SysResourceController extends SuperController {
      *
      * @return 系统菜单
      */
+    @ApiOperation("获取系统权限树")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/perm/tree")
-    public R getPermsTree() {
+    public R<List<TreeSelectVo>> getPermsTree() {
         List<SysResourceVo> resourceVoList = sysResourceService.getUserResourceList(getLoginUserId(),Constants.RESOURCE_TYPE.SYS_AUTH_RESOURCE);
         List<TreeSelectVo> treeSelectVos = new ArrayList<>();
         Map<String,SysResourceVo> resourceVoMap = new HashMap<>();
@@ -205,9 +225,10 @@ public class SysResourceController extends SuperController {
     /**
      * 获取菜单下拉树列表
      */
+    @ApiOperation("获取菜单下拉树列表")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/menu/treeSelect")
-    public R menuTreeSelect() {
+    public R<List<TreeSelectVo>> menuTreeSelect() {
         List<SysResourceVo> resourceVoList = TreeUtil.buildTree(sysResourceService.getUserResourceList(getLoginUserId(),Constants.RESOURCE_TYPE.MENU));
         List<TreeSelectVo> treeSelectVos = new ArrayList<>();
         resourceVoList.forEach(resourceVo -> {
@@ -222,7 +243,7 @@ public class SysResourceController extends SuperController {
      */
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping(value = "/roleResTreeSelect/{roleId}")
-    public R roleResTreeSelect(@PathVariable("roleId") Long roleId) {
+    public R<Map<Object, Object>> roleResTreeSelect(@PathVariable("roleId") Long roleId) {
         List<SysResourceVo> roleResList = sysRoleService.getRoleResList(roleId, null);
         List<Long> roleMenuIdList = new ArrayList<>();//菜单资源
         List<Long> roleAuthResIdList = new ArrayList<>();//授权资源
@@ -244,8 +265,9 @@ public class SysResourceController extends SuperController {
      * 刷新系统权限控制资源
      * @return
      */
+    @ApiOperation("刷新系统权限控制资源")
     @PostMapping("/refreshAuthRes")
-    public R refreshAuthRes(){
+    public R<Void> refreshAuthRes(){
         List<AuthResourceScan.AuthRes> authResList = authResourceScan.scan();//扫描系统的权限控制资源
         sysResourceService.saveOrUpdate(authResList);
         return R.ok();

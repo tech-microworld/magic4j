@@ -1,0 +1,81 @@
+#set($entityPath=$!{table.entityPath})
+#if($entityPath.indexOf("${package.ModuleName}")!=-1)
+    #set($entityPath=$entityPath.substring(${package.ModuleName.length()}))
+    #set($entityPath=$entityPath.substring(0,1).toLowerCase()+$entityPath.substring(1))
+#end
+import request from '@/utils/request'
+
+// 查询列表
+export function list(query) {
+    return request({
+        url: '/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end/list',
+        method: 'get',
+        params: query
+    })
+}
+
+// 查询详细
+export function get(id) {
+    return request({
+        url: '/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end/' + id,
+        method: 'get'
+    })
+}
+
+// 新增
+export function add(data) {
+    return request({
+        url: '/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end',
+        method: 'post',
+        data: data
+    })
+}
+
+// 修改
+export function update(data) {
+    return request({
+        url: '/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end',
+        method: 'put',
+        data: data
+    })
+}
+
+// 删除
+export function remove(id) {
+    return request({
+        url: '/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end/' + id,
+        method: 'delete'
+    })
+}
+
+#if(${cfg.excelCodeGenerate})
+#if(!${cfg.isTreeTable})
+// 导出数据到Excel
+export function exportData(data) {
+    return request({
+        url: '/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end/exportData',
+        method: 'post',
+        data: data
+    })
+}
+#end
+#end
+#if(${cfg.isTreeTable})
+// 查询树列表
+export function listTree(query) {
+    return request({
+        url: '/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end/treeList',
+        method: 'get',
+        params: query
+    })
+}
+
+// 查询下拉树结构
+export function treeSelect(query) {
+    return request({
+        url: '/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end/treeSelect',
+        method: 'get',
+        params: query
+    })
+}
+#end

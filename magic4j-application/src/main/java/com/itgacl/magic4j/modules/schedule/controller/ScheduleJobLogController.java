@@ -6,20 +6,21 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itgacl.magic4j.common.base.SuperController;
+import com.itgacl.magic4j.common.bean.PageData;
+import com.itgacl.magic4j.common.bean.PageParam;
 import com.itgacl.magic4j.libcommon.annotation.Auth;
 import com.itgacl.magic4j.libcommon.annotation.Log;
 import com.itgacl.magic4j.libcommon.bean.R;
 import com.itgacl.magic4j.modules.schedule.dto.ScheduleJobLogDTO;
-import com.itgacl.magic4j.modules.schedule.entity.ScheduleJob;
 import com.itgacl.magic4j.modules.schedule.entity.ScheduleJobLog;
 import com.itgacl.magic4j.modules.schedule.service.ScheduleJobLogService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Classname ScheduleJobLogController
@@ -28,6 +29,7 @@ import java.util.Map;
  * @Date 2020-04-17
  * @Version 1.0
  */
+@Api(tags = "调度日志管理")
 @RestController
 @RequestMapping("/api/schedule/jobLog")
 public class ScheduleJobLogController extends SuperController{
@@ -40,8 +42,9 @@ public class ScheduleJobLogController extends SuperController{
      * @param id
      * @return
      */
+    @ApiOperation(value = "根据ID查找")
     @GetMapping("/{id}")
-    public R get(@PathVariable("id") Long id){
+    public R<ScheduleJobLogDTO> get(@PathVariable("id") Long id){
         ScheduleJobLogDTO scheduleJobLogDTO = scheduleJobLogService.getScheduleJobLogById(id);
         return R.ok(scheduleJobLogDTO);
     }
@@ -50,8 +53,9 @@ public class ScheduleJobLogController extends SuperController{
      * 查询全部
      * @return
      */
+    @ApiOperation(value = "查询全部")
     @GetMapping
-    public R get() {
+    public R<List<ScheduleJobLogDTO>> get() {
         List<ScheduleJobLogDTO> scheduleJobLogList = scheduleJobLogService.getList(null);
         return R.ok(scheduleJobLogList);
     }
@@ -61,10 +65,11 @@ public class ScheduleJobLogController extends SuperController{
     * @param ids
     * @return
     */
+    @ApiOperation(value = "根据ID批量删除")
     @Log(operation="删除",remark = "根据ID删除调度日志",moduleName = "调度日志")
     @Auth(name = "删除",moduleName = "调度日志")//操作权限控制
     @DeleteMapping("/{ids}")
-    public R delete(@PathVariable("ids") Long[] ids){
+    public R<Void> delete(@PathVariable("ids") Long[] ids){
         if(ids.length==1){
             scheduleJobLogService.deleteById(ids[0]);
         }else {
@@ -74,10 +79,11 @@ public class ScheduleJobLogController extends SuperController{
         return R.ok();
     }
 
+    @ApiOperation(value = "清空调度日志数据")
     @Log(operation="清空数据",remark = "清空调度日志数据",moduleName = "调度日志")
     @Auth(name = "清空",moduleName = "调度日志")
     @DeleteMapping("/clean")
-    public R clean(){
+    public R<Void> clean(){
         scheduleJobLogService.deleteAll();
         return R.ok();
     }
@@ -86,17 +92,14 @@ public class ScheduleJobLogController extends SuperController{
       * 分页查询
       * @return
       */
+    @ApiOperation(value = "分页查询")
     @GetMapping("/list")
-    public R pageList(ScheduleJobLogDTO scheduleJobLogDTO){
+    public R<PageData<ScheduleJobLog>> pageList(ScheduleJobLogDTO scheduleJobLogDTO,PageParam pageParam){
         //构建查询条件
         QueryWrapper<ScheduleJobLog> queryWrapper = buildQueryWrapper(scheduleJobLogDTO);
-        Page<ScheduleJobLog> page = getPage();//获取mybatisPlus分页对象
+        Page<ScheduleJobLog> page = getPage(pageParam);//获取mybatisPlus分页对象
         IPage<ScheduleJobLog> pageInfo = scheduleJobLogService.page(page,queryWrapper);//mybatisPlus分页查询
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("total", pageInfo.getTotal());//总记录数
-        dataMap.put("rows", pageInfo.getRecords());//列表数据
-        dataMap.put("pages", pageInfo.getPages());//总页数
-        return R.ok(dataMap);
+        return R.ok(PageData.build(pageInfo));
     }
 
     /**

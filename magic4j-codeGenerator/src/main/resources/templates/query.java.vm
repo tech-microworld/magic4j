@@ -1,0 +1,52 @@
+#if(${package.ModuleName})
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.query;
+#else
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.query;
+#end
+
+#foreach($pkg in ${table.importPackages})
+import ${pkg};
+#end
+
+import lombok.Data;
+#if(${swagger2})
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+#end
+
+/**
+ * @Classname ${entity}Query
+ * @Description ${entity}的Query对象
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+#if(${swagger2})
+@ApiModel(value="${entity}查询对象")
+#end
+@Data
+public class ${entity}Query  implements Serializable {
+
+    #foreach($field in ${table.fields})
+        #if(!${field.fill}) ##不是自动填充字段
+            #if("$!field.comment" != "")
+                #if(${swagger2})
+   @ApiModelProperty(value = "${field.comment}")
+                #else
+    /**
+     * ${field.comment}
+     */
+                #end
+            #end
+    private ${field.propertyType} ${field.propertyName};
+        #end
+
+    #end
+    #if(${cfg.excelCodeGenerate})
+    @ApiModelProperty(value = "需要导出的数据ID", hidden = true)
+    private Long[] ids;
+
+    @ApiModelProperty(value = "需要导出的列", hidden = true)
+    private String[] exportColumnNames;
+    #end
+}

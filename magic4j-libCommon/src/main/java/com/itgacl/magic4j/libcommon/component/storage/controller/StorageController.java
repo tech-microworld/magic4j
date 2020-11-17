@@ -6,16 +6,17 @@ import com.itgacl.magic4j.libcommon.component.storage.StorageFactory;
 import com.itgacl.magic4j.libcommon.component.storage.bean.UploadResult;
 import com.itgacl.magic4j.libcommon.component.storage.service.StorageService;
 import com.itgacl.magic4j.libcommon.controller.Magic4jBaseController;
+import io.swagger.annotations.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Api(tags = "文件存储")
 @RestController
 @RequestMapping("/api/storage")
 public class StorageController extends Magic4jBaseController {
@@ -25,8 +26,9 @@ public class StorageController extends Magic4jBaseController {
      * @param files
      * @return
      */
-    @PostMapping("/upload")
-    public R upload(@RequestParam(value = "file") MultipartFile[] files) {
+    @ApiOperation("上传文件")
+    @PostMapping(value = "/upload",consumes="multipart/form-data")//添加headers处理swagger文件上传出现的【Current request is not a multipart request】问题
+    public R upload(@ApiParam(value = "文件", required = true) @RequestParam(value = "file") MultipartFile[] files) {
         //判断file数组不能为空并且长度大于0
         if (files != null && files.length > 0) {
             StorageService storageService = StorageFactory.build();
@@ -54,8 +56,13 @@ public class StorageController extends Magic4jBaseController {
      * @param fileExt 文件扩展名（不带.）
      * @return FileUploadResult 文件上传结果
      */
+    @ApiOperation("上传网络文件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "fileUrl",value = "文件网络URL地址",required = true),
+            @ApiImplicitParam(name = "fileExt",value = "文件扩展名（不带.）",required = true)
+    })
     @PostMapping("/uploadNetworkFile")
-    public R uploadNetworkFile(String fileUrl, String fileExt) {
+    public R<UploadResult> uploadNetworkFile(String fileUrl, String fileExt) {
         if(StrUtil.isEmpty(fileUrl)){
             return R.fail("要上传的网络文件地址不能为空");
         }
@@ -79,6 +86,11 @@ public class StorageController extends Magic4jBaseController {
      * @param urls 文件的访问URL地址
      * @return
      */
+    @ApiOperation("删除文件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "urls",value = "文件的访问URL地址",required = true),
+            @ApiImplicitParam(name = "storageType",value = "存储方式",required = true)
+    })
     @DeleteMapping("/delete")
     public R delete(@RequestBody String[] urls,String storageType){
         StorageService storageService;
@@ -104,8 +116,13 @@ public class StorageController extends Magic4jBaseController {
      * @param fileName
      * @return
      */
-    @RequestMapping("/download")
-    public R download(HttpServletResponse response, HttpServletRequest request, String fileUrl, String fileName){
+    @ApiOperation("下载文件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "fileUrl",value = "文件的访问URL地址",required = true),
+            @ApiImplicitParam(name = "fileName",value = "下载后的文件名")
+    })
+    @GetMapping("/download")
+    public void download(HttpServletResponse response, HttpServletRequest request, String fileUrl, String fileName){
         if(StrUtil.isNotEmpty(fileName)){
             String userAgent = request.getHeader("User-Agent");
             // 针对IE或者以IE为内核的浏览器：
@@ -117,17 +134,12 @@ public class StorageController extends Magic4jBaseController {
                 }
             } else {
                 // 非IE浏览器的处理：
-                try {
-                    fileName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
-                } catch (UnsupportedEncodingException e) {
-                    logger.error(e.getMessage(),e);
-                }
+                fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
             }
         }else {
             fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
         }
 
         StorageFactory.build().downloadFile(response,fileUrl,fileName);
-        return null;
     }
 }

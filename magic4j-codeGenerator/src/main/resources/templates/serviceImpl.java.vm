@@ -1,22 +1,35 @@
 package ${package.ServiceImpl};
 
+import org.apache.commons.collections.CollectionUtils;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import ${superServiceImplClassPackage};
 #if(${package.ModuleName})
-import com.itgacl.magic4j.modules.${package.ModuleName}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo.${entity}Vo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.converter.${entity}Converter;
+    #if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo.${entity}TreeVo;
+    #end
 #else
-import com.itgacl.magic4j.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.${entity}Vo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.converter.${entity}Converter;
+    #if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.${entity}TreeVo;
+    #end
 #end
-import com.itgacl.magic4j.common.enums.ErrorCodeEnum;
-import com.itgacl.magic4j.common.util.AssertUtil;
-import com.itgacl.magic4j.common.validator.DataValidator;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.enums.ErrorCodeEnum;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.util.AssertUtil;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.validator.DataValidator;
 import ${package.Entity}.${entity};
 import ${package.Mapper}.${table.mapperName};
 import ${package.Service}.${table.serviceName};
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.bean.PageData;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.bean.PageParam;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,18 +46,41 @@ public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.m
     @Override
     public void create(${entity}DTO ${table.entityPath}DTO) {
         dataValidator.validate(${table.entityPath}DTO);//业务处理校验
-        ${entity} ${table.entityPath} = new ${entity}();
-        BeanUtils.copyProperties(${table.entityPath}DTO,${table.entityPath});
+        ${entity} ${table.entityPath} = ${entity}Converter.build().entity(${table.entityPath}DTO);//DTO转换成Entity
         save(${table.entityPath});//保存
     }
 
     @Override
     public void update(${entity}DTO ${table.entityPath}DTO) {
         dataValidator.validate(${table.entityPath}DTO);//业务处理校验
-        ${entity} ${table.entityPath} = new ${entity}();
-        BeanUtils.copyProperties(${table.entityPath}DTO,${table.entityPath});
+        ${entity} ${table.entityPath} = ${entity}Converter.build().entity(${table.entityPath}DTO);//DTO转换成Entity
         updateById(${table.entityPath});
     }
+#if(${cfg.excelCodeGenerate})
+    /**
+    * 导入数据
+    * @param dataList
+    * @param isCovered
+    */
+    @Override
+    public void importData(List<${entity}DTO> dataList, Boolean isCovered) {
+        dataList.forEach(${table.entityPath}DTO -> {
+            if(isCovered) {
+                ${entity} oldData = null;//todo 根据条件查询旧数据
+                if (oldData != null && oldData.getId() != null) {
+                    //找到了就覆盖旧数据
+                    ${table.entityPath}DTO.setId(oldData.getId());
+                    update(${table.entityPath}DTO);
+                }else{
+                    //找不到就新增
+                    create(${table.entityPath}DTO);
+                }
+            }else {
+                create(${table.entityPath}DTO);
+            }
+        });
+    }
+#end
 #foreach($field in ${table.fields})
 #if(${field.keyFlag}) ##主键字段
 
@@ -59,15 +95,18 @@ public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.m
     }
 
     @Override
-    public ${entity}DTO get${entity}ById(${field.propertyType} id) {
+    public ${entity}Vo get${entity}ById(${field.propertyType} id) {
         ${entity} ${table.entityPath} = getById(id);
         AssertUtil.notNull(ErrorCodeEnum.DATA_NOT_EXIST,${table.entityPath});
-        ${entity}DTO ${table.entityPath}DTO = new ${entity}DTO();
-        BeanUtils.copyProperties(${table.entityPath},${table.entityPath}DTO);
-        return ${table.entityPath}DTO;
+        return ${entity}Converter.build().vo(${table.entityPath});
     }
 #end
 #end
+
+    @Override
+    public void delete(QueryWrapper<${entity}> queryWrapper) {
+        remove(queryWrapper);
+    }
 
     @Override
     public void deleteAll() {
@@ -75,19 +114,140 @@ public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.m
     }
 
     @Override
-    public List<${entity}DTO> getList(QueryWrapper<${entity}> queryWrapper) {
-        List<${entity}DTO> ${table.entityPath}DTOList = new ArrayList<>();
+    public List<${entity}Vo> getList(QueryWrapper<${entity}> queryWrapper) {
         List<${entity}> ${table.entityPath}List = list(queryWrapper);
-        if(CollectionUtil.isNotEmpty(${table.entityPath}List)){
-            ${table.entityPath}List.forEach(${table.entityPath} -> {
-                ${entity}DTO ${table.entityPath}DTO = new ${entity}DTO();
-                BeanUtils.copyProperties(${table.entityPath},${table.entityPath}DTO);
-                ${table.entityPath}DTOList.add(${table.entityPath}DTO);
-            });
-        }
-        return ${table.entityPath}DTOList;
+        return ${entity}Converter.build().listVO(${table.entityPath}List);
     }
 
+    @Override
+    public PageData<${entity}Vo> pageList(Page<${entity}> page, QueryWrapper<${entity}> queryWrapper) {
+        IPage<${entity}> pageInfo = page(page,queryWrapper);//mybatisPlus分页查询
+        IPage<${entity}Vo> pageVO = ${entity}Converter.build().pageVO(pageInfo);
+        return PageData.build(pageVO);
+    }
+
+    @Override
+    public PageData<${entity}Vo> pageList(PageParam pageParam, QueryWrapper<${entity}> queryWrapper) {
+        Page<${entity}> page = new Page<>(pageParam.getPageNum(),pageParam.getPageSize());
+        return pageList(page,queryWrapper);
+    }
+
+    #if(${cfg.isTreeTable})
+
+    /**
+    * 根据ID获取信息以及子节点列表
+    * @param id
+    * @return
+    */
+    @Override
+    public List<${entity}TreeVo> getSubNodeListById(Long id){
+        ${entity} ${table.entityPath} = getById(id);
+        AssertUtil.notNull(ErrorCodeEnum.DATA_NOT_EXIST,${table.entityPath});
+        ${entity}TreeVo treeVo = ${entity}Converter.build().treeVo(${table.entityPath});
+        List<${entity}TreeVo> treeVoList = new ArrayList<>();
+        treeVoList.add(treeVo);
+        recursionQuerySubNode(treeVoList,treeVo.getId());//递归查询子节点
+        return treeVoList;
+    }
+
+    /**
+     * 根据ID获取父节点列表
+     * @param id
+     * @return
+     */
+    @Override
+    public List<${entity}TreeVo> getParentNodeTreeListById(Long id){
+        List<${entity}TreeVo> treeVoList = new ArrayList<>();
+        ${entity} ${table.entityPath} = getById(id);
+        recursionQueryParentNode(treeVoList,${table.entityPath});
+        return treeVoList;
+    }
+
+    /**
+     * 根据ID获取树
+     * @param id
+     * @return
+     */
+    @Override
+    public ${entity}TreeVo getTreeById(Long id){
+        ${entity} ${table.entityPath} = getById(id);
+        AssertUtil.notNull(ErrorCodeEnum.DATA_NOT_EXIST,${table.entityPath});
+        ${entity}TreeVo treeVo = ${entity}Converter.build().treeVo(${table.entityPath});
+        recursionQuerySubNode(treeVo);//递归查询子节点
+        return treeVo;
+    }
+
+    @Override
+    public List<${entity}TreeVo> getTreeVoList(QueryWrapper<${entity}> queryWrapper){
+        List<${entity}> ${table.entityPath}List = list(queryWrapper);
+        return ${entity}Converter.build().treeListVo(${table.entityPath}List);
+    }
+
+    /**
+    * 递归查询子节点
+    */
+    private void recursionQuerySubNode(${entity}TreeVo treeNodeVo){
+        Long id = treeNodeVo.getId();
+        //根据parentId查询
+        List<${entity}TreeVo> childrenVoList = new ArrayList<>();
+        //查找子节点信息
+        List<${entity}> subNodeList = query().eq(${entity}.PARENT_ID,id).list();
+        if(CollectionUtils.isNotEmpty(subNodeList)){
+            //子节点信息不为空
+            for(${entity} ${table.entityPath}:subNodeList) {
+                ${entity}TreeVo treeVo = ${entity}Converter.build().treeVo(${table.entityPath});
+                childrenVoList.add(treeVo);
+            }
+            for(${entity}TreeVo treeVo:childrenVoList){
+                //递归查询
+                recursionQuerySubNode(treeVo);
+            }
+        }
+        treeNodeVo.setChildren(childrenVoList);
+    }
+
+    /**
+    * 递归查询子节点信息
+    * @param voList
+    * @param parentId
+    */
+    private void recursionQuerySubNode(List<${entity}TreeVo> voList, Long parentId){
+        //根据parentId查询子节点信息
+        List<${entity}> subNodeList = query().eq(${entity}.PARENT_ID,parentId).list();
+        if(CollectionUtils.isNotEmpty(subNodeList)){
+            List<${entity}TreeVo> childrenVoList = new ArrayList<>();
+            //子节点信息不为空
+            for(${entity} ${table.entityPath}:subNodeList) {
+                ${entity}TreeVo treeVo = ${entity}Converter.build().treeVo(${table.entityPath});
+                childrenVoList.add(treeVo);
+            }
+            voList.addAll(childrenVoList);
+            for(${entity}TreeVo treeVo:childrenVoList){
+                List<${entity}TreeVo> childrenList = new ArrayList<>();
+                //递归查询
+                recursionQuerySubNode(childrenList,treeVo.getId());
+                voList.addAll(childrenList);
+            }
+        }
+    }
+
+    /**
+     * 递归查询父节点
+     * @param voList
+     * @param ${table.entityPath}
+     */
+    private void recursionQueryParentNode(List<${entity}TreeVo> voList, ${entity} ${table.entityPath}){
+        //根据Id查询父节点
+        if(${table.entityPath}.getParentId()!=null){
+            ${entity} parentNode = getById(${table.entityPath}.getParentId());
+            ${entity}TreeVo parentNodeTreeVo = ${entity}Converter.build().treeVo(parentNode);
+            voList.add(parentNodeTreeVo);
+            //递归
+            recursionQueryParentNode(voList,parentNode);
+        }
+    }
+
+    #end
     /**
      * 数据校验器
      */

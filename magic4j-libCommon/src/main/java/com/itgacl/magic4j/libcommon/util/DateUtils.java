@@ -440,37 +440,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return weekOfDays[w];
     }
 
-    /**
-     * @param args
-     * @throws ParseException
-     */
-    public static void main(String[] args) throws ParseException {
-        String dateStr = formatDate(parseDate("2017-08-27 15:00"),"MM-dd HH:mm");
-        String[] tmpArr = dateStr.split(" ");
-        String str1 = tmpArr[0];
-        String str2 = tmpArr[1];
-        String[] str1Arr = str1.split("-");
-        String dateResStr = str1Arr[0]+"月"+str1Arr[1]+"日 "+str2;
-        System.out.println(dateResStr);
-        // System.out.println(getDate("yyyy年MM月dd日 E"));
-        // long time = new Date().getTime()-parseDate("2012-11-19").getTime();
-        // System.out.println(time/(24*60*60*1000));
-       // Date now = new Date();
-       // Date date = now;
-      //  System.out.println( now == date);
-//        for (int i = 0 ; i < 36;i ++) {
-           // now = addMonths(now ,1);
-//            System.out.println( now == date);
-//            System.out.println(formatDate(now,"yyyy_MM"));
-//            System.out.println(formatDate(date,"yyyy_MM"));
-          /*  System.out.println(formatDate(getStartForDay()));
-            System.out.println(formatDate(getStartForDay(DateUtils.addDays(new Date(),1))));
-            System.out.println(formatDate(getEndForDay()));
-            System.out.println(formatDate(getEndForDay(DateUtils.addDays(new Date(), 1))));*/
-
-          /*  SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            System.out.println(df.format(getDoorValidTime(new SimpleDateFormat("yyyy-MM-dd").parse("2017-07-01"))));*/
-
-
+    public static String getCurrentTime() {
+        return formatDate(new Date(), "yyyyMMddHHmmss");
     }
 }

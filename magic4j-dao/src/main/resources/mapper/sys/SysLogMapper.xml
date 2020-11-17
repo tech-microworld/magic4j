@@ -10,4 +10,33 @@
   <select id="getModuleNameList" resultType="String">
     SELECT DISTINCT module_name FROM sys_log WHERE module_name IS NOT NULL AND module_name!=''
   </select>
+
+    <select id="getLoginStatistics" resultType="com.itgacl.magic4j.modules.sys.vo.LoginStatisticVo">
+       select count(client_ip) as loginTimes,client_operation_location as location,lng,lat from sys_log where log_type=1 and client_ip is not null group by client_operation_location,lng,lat
+    </select>
+
+    <select id="loginCountStatistic"
+            resultType="com.itgacl.magic4j.modules.sys.vo.CountStatisticVo">
+        SELECT * from (select a.days,ifnull(b.count,0) as count
+        from (
+            SELECT curdate() as days
+            union all
+            SELECT date_sub(curdate(), interval 1 day) as days
+            union all
+            SELECT date_sub(curdate(), interval 2 day) as days
+            union all
+            SELECT date_sub(curdate(), interval 3 day) as days
+            union all
+            SELECT date_sub(curdate(), interval 4 day) as days
+            union all
+            SELECT date_sub(curdate(), interval 5 day) as days
+            union all
+            SELECT date_sub(curdate(), interval 6 day) as days
+        ) a left join (
+          select date(create_time) as datetime, count(*) as count
+          from sys_log where log_type=1
+          group by date(create_time)
+        ) b on a.days = b.datetime) as t ORDER BY t.days ASC;
+    </select>
+
 </mapper>

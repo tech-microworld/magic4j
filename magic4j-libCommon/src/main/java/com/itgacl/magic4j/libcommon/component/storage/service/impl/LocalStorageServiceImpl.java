@@ -113,8 +113,8 @@ public class LocalStorageServiceImpl extends BaseStorageService {
             if(!file.exists()){
                 file.mkdirs();//创建目录
             }
-            String fileSuffix = fileName.substring(fileName.indexOf("."));
-            String newFileName = GUIDUtil.genRandomGUID()+fileSuffix;
+            String fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();// 后缀名
+            String newFileName = GUIDUtil.genRandomGUID()+"."+fileSuffix;
             String filePath = fileSavePath + "/" + newFileName;
             FileUtil.saveFile(filePath,fileByte);
             uploadResult.setFileSuffix(fileSuffix);//后缀

@@ -22,6 +22,7 @@
         <qiniu.version>7.2.23</qiniu.version>
         <aliyun.oss.version>2.5.0</aliyun.oss.version>
         <qcloud.cos.version>4.4</qcloud.cos.version>
+        <easyexcel.version>2.2.6</easyexcel.version>
     </properties>
 
     <dependencies>

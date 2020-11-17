@@ -11,7 +11,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itgacl.magic4j.common.bean.LoginUser;
-import com.itgacl.magic4j.common.bizCache.BizCacheService;
+import com.itgacl.magic4j.common.cache.biz.BizCacheService;
+import com.itgacl.magic4j.common.cache.sys.SysCache;
 import com.itgacl.magic4j.common.context.LoginUserContext;
 import com.itgacl.magic4j.common.enums.ErrorCodeEnum;
 import com.itgacl.magic4j.common.jwt.JwtConfig;
@@ -21,18 +22,20 @@ import com.itgacl.magic4j.common.security.SecuritySetting;
 import com.itgacl.magic4j.common.security.UserPasswordPolicy;
 import com.itgacl.magic4j.common.util.AssertUtil;
 import com.itgacl.magic4j.common.validator.DataValidator;
+import com.itgacl.magic4j.libcommon.component.api.bean.AddressInfo;
+import com.itgacl.magic4j.libcommon.component.api.service.CommApiService;
 import com.itgacl.magic4j.libcommon.constant.Constants;
 import com.itgacl.magic4j.libcommon.exception.DataValidationException;
 import com.itgacl.magic4j.libcommon.exception.Magic4jException;
 import com.itgacl.magic4j.libcommon.util.GUIDUtil;
 import com.itgacl.magic4j.libcommon.util.SpringContextUtils;
-import com.itgacl.magic4j.libcommon.util.ip.AddressUtils;
 import com.itgacl.magic4j.libcommon.util.ip.IpUtils;
 import com.itgacl.magic4j.modules.sys.dto.SysUserDTO;
 import com.itgacl.magic4j.modules.sys.dto.SysUserRoleDTO;
 import com.itgacl.magic4j.modules.sys.dto.TokenDTO;
 import com.itgacl.magic4j.modules.sys.entity.SysRole;
 import com.itgacl.magic4j.modules.sys.entity.SysUser;
+import com.itgacl.magic4j.modules.sys.excel.UserExcel;
 import com.itgacl.magic4j.modules.sys.mapper.SysUserMapper;
 import com.itgacl.magic4j.modules.sys.service.*;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -78,6 +81,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private CommApiService commApiService;
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -488,6 +494,44 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return page.setRecords(sysUserMapper.page(page,queryWrapper));
     }
 
+    /**
+     * 导入用户
+     * @param data
+     * @param isCovered
+     */
+    @Override
+    public void importUser(List<UserExcel> data, Boolean isCovered) {
+        data.forEach(userExcel -> {
+            SysUserDTO sysUserDTO = new SysUserDTO();
+            BeanUtils.copyProperties(userExcel,sysUserDTO);
+            List<Long> deptIds = SysCache.getDeptIds(userExcel.getDeptName());
+            if(CollectionUtil.isNotEmpty(deptIds)){
+                sysUserDTO.setDeptId(deptIds.get(0));
+            }
+            List<Long> roleIds = SysCache.getRoleIds(userExcel.getRoleName());
+            if(CollectionUtil.isNotEmpty(roleIds)){
+                Long[] roleIdArr = new Long[roleIds.size()];
+                sysUserDTO.setRoleIds(roleIds.toArray(roleIdArr));
+            }
+            List<Long> postIds = SysCache.getPostIds(userExcel.getPostName());
+            if(CollectionUtil.isNotEmpty(postIds)){
+                Long[] postIdArr = new Long[postIds.size()];
+                sysUserDTO.setPostIds(postIds.toArray(postIdArr));
+            }
+            // 覆盖数据
+            if (isCovered) {
+                // 查询用户是否存在
+                SysUser oldUser = SysCache.getUser(userExcel.getUsername());
+                if (oldUser != null && oldUser.getId() != null) {
+                    sysUserDTO.setId(oldUser.getId());
+                    update(sysUserDTO);
+                }
+            }else {
+                create(sysUserDTO);
+            }
+        });
+    }
+
     private boolean isPositiveInteger(Integer val) {
         return val != null && val > 0;
     }
@@ -501,7 +545,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         UserAgent userAgent = UserAgent.parseUserAgentString(SpringContextUtils.getRequest().getHeader("User-Agent"));
         String ip = IpUtils.getIpAddr(SpringContextUtils.getRequest());
         loginUser.setIpAddress(ip);
-        loginUser.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
+        AddressInfo addressInfo = commApiService.getAddressByIP(ip);
+        loginUser.setLoginLocation(addressInfo.getAddress());
+        loginUser.setLat(addressInfo.getLat());
+        loginUser.setLng(addressInfo.getLng());
         loginUser.setBrowser(userAgent.getBrowser().getName());
         loginUser.setOs(userAgent.getOperatingSystem().getName());
     }

@@ -1,31 +1,69 @@
 package ${package.Controller};
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.itgacl.magic4j.common.base.SuperController;
-import com.itgacl.magic4j.libcommon.annotation.Auth;
-import com.itgacl.magic4j.libcommon.annotation.Log;
-import com.itgacl.magic4j.libcommon.bean.R;
-import com.itgacl.magic4j.libcommon.constant.Constants;
-
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.base.SuperController;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.bean.PageData;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.bean.PageParam;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.annotation.Auth;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.annotation.Log;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.bean.R;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.constant.Constants;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.util.DateUtils;
+#if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.util.TreeUtil;
+#end
 import ${package.Service}.${table.serviceName};
 #if(${package.ModuleName})
-import com.itgacl.magic4j.modules.${package.ModuleName}.entity.${entity};
-import com.itgacl.magic4j.modules.${package.ModuleName}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.entity.${entity};
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo.${entity}Vo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.query.${entity}Query;
+    #if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo.${entity}TreeVo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.sys.vo.TreeSelectVo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.converter.${entity}Converter;
+    #end
+#if(${cfg.excelCodeGenerate})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.excel.${entity}Importer;
+#end
 #else
-import com.itgacl.magic4j.entity.${entity};
-import com.itgacl.magic4j.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.entity.${entity};
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.${entity}Vo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.query.${entity}Query;
+    #if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.${entity}TreeVo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.TreeSelectVo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.converter.${entity}Converter;
+    #end
+#if(${cfg.excelCodeGenerate})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.excel.${entity}Importer;
+#end
 #end
 
 import cn.hutool.core.collection.CollectionUtil;
-import org.springframework.beans.BeanUtils;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.annotations.*;
+#if(${cfg.excelCodeGenerate})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.excel.ExcelUtil;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.component.storage.bean.UploadResult;
+#end
 import java.util.*;
+#if(${cfg.excelCodeGenerate})
+import javax.servlet.http.HttpServletResponse;
+#end
 
+#set($entityPath=$!{table.entityPath})
+#if($entityPath.indexOf("${package.ModuleName}")!=-1)
+    #set($entityPath=$entityPath.substring(${package.ModuleName.length()}))
+    #set($entityPath=$entityPath.substring(0,1).toLowerCase()+$entityPath.substring(1))
+#end
 /**
  * @Classname ${table.controllerName}
  * @Description $!{table.comment} Controller
@@ -33,9 +71,10 @@ import java.util.*;
  * @Date ${date}
  * @Version 1.0
  */
-@Auth(name = "${entity}管理")//在类上标注了@Auth注解后这个类下的所有接口将被AuthInterceptor拦截进行访问权限控制
+@Api(tags = "${entity}管理")
+//@Auth(name = "${entity}管理")//在类上标注了@Auth注解后这个类下的所有接口将被AuthInterceptor拦截进行访问权限控制
 @RestController
-@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+@RequestMapping("/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end")
 public class ${table.controllerName} extends ${superControllerClass}{
 
     @Autowired
@@ -46,9 +85,10 @@ public class ${table.controllerName} extends ${superControllerClass}{
      * @param ${table.entityPath}
      * @return
      */
+    @ApiOperation("新增")
     @Log(operation="创建",remark = "创建${entity}",moduleName = "${entity}管理") //在方法上标注@Log注解用于记录操作日志
     @PostMapping
-    public R create(@RequestBody @Validated(Constants.Create.class) ${entity}DTO ${table.entityPath}){
+    public R<Void> create(@RequestBody @Validated(Constants.Create.class) ${entity}DTO ${table.entityPath}){
         ${table.entityPath}Service.create(${table.entityPath});
         return R.ok();
     }
@@ -58,9 +98,10 @@ public class ${table.controllerName} extends ${superControllerClass}{
      * @param ${table.entityPath}
      * @return
      */
+    @ApiOperation("修改")
     @Log(operation="修改",remark = "修改${entity}",moduleName = "${entity}管理")
     @PutMapping
-    public R update(@RequestBody @Validated(Constants.Update.class) ${entity}DTO ${table.entityPath}){
+    public R<Void> update(@RequestBody @Validated(Constants.Update.class) ${entity}DTO ${table.entityPath}){
         ${table.entityPath}Service.update(${table.entityPath});
         return R.ok();
     }
@@ -72,22 +113,28 @@ public class ${table.controllerName} extends ${superControllerClass}{
      * @param id
      * @return
      */
+    @ApiOperation("根据ID查找")
+    @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/{id}")
-    public R get(@PathVariable("id") ${field.propertyType} id){
-        ${entity}DTO ${table.entityPath}DTO = ${table.entityPath}Service.get${entity}ById(id);
-        return R.ok(${table.entityPath}DTO);
+    public R<${entity}Vo> get(@PathVariable("id") ${field.propertyType} id){
+        ${entity}Vo ${table.entityPath}Vo = ${table.entityPath}Service.get${entity}ById(id);
+        return R.ok(${table.entityPath}Vo);
     }
     #end
 #end
 
     /**
-     * 查询全部
+     * 根据条件查询
      * @return
      */
+    @ApiOperation("根据条件查询")
+    @Auth(isAuth = false)//不进行权限控制
     @GetMapping
-    public R get() {
-        List<${entity}DTO> ${table.entityPath}List = ${table.entityPath}Service.getList(null);
-        return R.ok(${table.entityPath}List);
+    public R<List<${entity}Vo>> get(${entity}Query query) {
+        //构建查询条件
+        QueryWrapper<${entity}> queryWrapper = buildQueryWrapper(query);
+        List<${entity}Vo> ${table.entityPath}ListVo = ${table.entityPath}Service.getList(queryWrapper);
+        return R.ok(${table.entityPath}ListVo);
     }
 #foreach($field in ${table.fields})
     #if(${field.keyFlag})
@@ -97,9 +144,10 @@ public class ${table.controllerName} extends ${superControllerClass}{
     * @param ids
     * @return
     */
+    @ApiOperation("根据ID批量删除")
     @Log(operation="删除",remark = "根据ID删除${entity}",moduleName = "${entity}管理")
     @DeleteMapping("/{ids}")
-    public R batchDelete(@PathVariable("ids") ${field.propertyType}[] ids){
+    public R<Void> delete(@PathVariable("ids") ${field.propertyType}[] ids){
         if(ids.length==1){
             ${table.entityPath}Service.deleteById(ids[0]);
         }else {
@@ -110,49 +158,195 @@ public class ${table.controllerName} extends ${superControllerClass}{
     }
     #end
 #end
-#foreach($field in ${table.fields})
-    #if(${field.keyFlag})
 
-    /**
-     * 根据ID列表批量删除
-     * ids=[18,19,20]
-     * @return
-     */
-    @Log(operation="删除",remark = "根据ID列表批量删除${entity}",moduleName = "${entity}管理")
-    @DeleteMapping
-    public R delete(@RequestBody ${field.propertyType}[] ids){
-        List<Long> idList = Arrays.asList(ids);
-        ${table.entityPath}Service.deleteByIds(idList);
-        return R.ok();
+#if(${cfg.excelCodeGenerate})
+
+    #if(${cfg.isTreeTable})
+    @ApiOperation("导入数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "isCovered",value = "是否覆盖，true:覆盖,false:不覆盖",required = true),
+            @ApiImplicitParam(name = "parentId",value = "父级ID")
+    })
+    @PostMapping("/importData")
+    public R<Void> importData(@ApiParam(value = "Excel文件", required = true) @RequestParam(value = "file") MultipartFile file, Boolean isCovered,String parentId) {
+        Long pId = 0L;
+        if(StrUtil.isNotBlank(parentId) && !parentId.equals("undefined")){
+            pId = Long.parseLong(parentId);
+        }
+        ${entity}Importer ${table.entityPath}Importer = new ${entity}Importer(sysOrgService, isCovered,pId);
+        ExcelUtil.save(file, ${table.entityPath}Importer, ${entity}DTO.class);
+        return R.success("导入成功");
+    }
+    #else
+    @ApiOperation("导入数据")
+    @ApiImplicitParam(name = "isCovered",value = "是否覆盖，true:覆盖,false:不覆盖")
+    @PostMapping("/importData")
+    public R<Void> importData(@ApiParam(value = "Excel文件", required = true) @RequestParam(value = "file") MultipartFile file, Boolean isCovered) {
+        ${entity}Importer ${table.entityPath}Importer = new ${entity}Importer(${table.entityPath}Service, isCovered);
+        ExcelUtil.save(file, ${table.entityPath}Importer, ${entity}DTO.class);
+        return R.success("导入成功");
     }
     #end
-#end
 
+    #if(!${cfg.isTreeTable})
+    @ApiOperation("导出数据到Excel")
+    @GetMapping("/exportData")
+    public void exportData(${entity}Query query, HttpServletResponse response) {
+        //构建查询条件
+        QueryWrapper<${entity}> queryWrapper = buildQueryWrapper(query);
+        List<${entity}Vo> ${table.entityPath}VoList = ${table.entityPath}Service.getList(queryWrapper);
+        if(CollectionUtil.isNotEmpty(${table.entityPath}VoList)){
+            if(ArrayUtil.isNotEmpty(query.getExportColumnNames())){
+                //导出Excel，指定需要导出的列
+                ExcelUtil.export(response, "${entity}" + DateUtils.getCurrentTime(), "${entity}数据表", ${table.entityPath}VoList, ${entity}Vo.class,Arrays.asList(query.getExportColumnNames()));
+            }else {
+                //导出Excel，导出全部列
+                ExcelUtil.export(response, "${entity}" + DateUtils.getCurrentTime(), "${entity}数据表", ${table.entityPath}VoList, ${entity}Vo.class);
+            }
+        }
+    }
+
+    @ApiOperation("导出数据到Excel并上传到文件服务器")
+    @PostMapping("/exportData")
+    public R<UploadResult> exportData(@RequestBody ${entity}Query query) {
+        //构建查询条件
+        QueryWrapper<${entity}> queryWrapper = buildQueryWrapper(query);
+        List<${entity}Vo> ${table.entityPath}VoList = ${table.entityPath}Service.getList(queryWrapper);
+        UploadResult uploadResult;
+        if(ArrayUtil.isNotEmpty(query.getExportColumnNames())){
+            //导出Excel并上传到文件服务器，指定需要导出的列
+            uploadResult = ExcelUtil.exportAndUpload("${entity}" + DateUtils.getCurrentTime(), "${entity}数据表", ${table.entityPath}VoList, ${entity}Vo.class,Arrays.asList(query.getExportColumnNames()));
+        }else {
+            //导出Excel并上传到文件服务器，导出全部列
+            uploadResult = ExcelUtil.exportAndUpload("${entity}" + DateUtils.getCurrentTime(), "${entity}数据表", ${table.entityPath}VoList, ${entity}Vo.class);
+        }
+        return R.ok(uploadResult);
+    }
+    #end
+    @ApiOperation("获取数据导入模板")
+    @GetMapping("/import/template")
+    public void getImportTemplate(HttpServletResponse response) {
+        List<${entity}DTO> list = new ArrayList<>();
+        ExcelUtil.export(response, "${entity}数据导入模板", "${entity}数据表", list, ${entity}DTO.class);
+    }
+#end
     /**
       * 分页查询
       * @return
       */
+    @ApiOperation("分页查询")
+    @Auth(isAuth = false)//不进行权限控制
     @GetMapping(value = "/list")
-    public R pageList(${entity}DTO ${table.entityPath}DTO){
+    public R<PageData<${entity}Vo>> pageList(${entity}Query query, PageParam pageParam){
         //构建查询条件
-        QueryWrapper<${entity}> queryWrapper = buildQueryWrapper(${table.entityPath}DTO);
-        Page<${entity}> page = getPage();//获取mybatisPlus分页对象
-        IPage<${entity}> pageInfo = ${table.entityPath}Service.page(page,queryWrapper);//mybatisPlus分页查询
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("total", pageInfo.getTotal());//总记录数
-        dataMap.put("rows", pageInfo.getRecords());//列表数据
-        dataMap.put("pages", pageInfo.getPages());//总页数
-        return R.ok(dataMap);
+        QueryWrapper<${entity}> queryWrapper = buildQueryWrapper(query);
+        PageData<${entity}Vo> pageData = ${table.entityPath}Service.pageList(pageParam,queryWrapper);//mybatisPlus分页查询
+        return R.ok(pageData);
+    }
+
+#if(${cfg.isTreeTable})
+
+    @ApiOperation("获取树列表")
+    @Auth(isAuth = false)//不进行权限控制
+    @GetMapping("/treeList")
+    public R<List<${entity}TreeVo>> treeList(${entity}Query query){
+        //构建查询条件
+        QueryWrapper<${entity}> queryWrapper = buildTreeQueryWrapper(query);
+        return R.ok(TreeUtil.buildTree(${table.entityPath}Service.getTreeVoList(queryWrapper)));
+    }
+
+    @ApiOperation("获取下拉树列表")
+    @Auth(isAuth = false)//不进行权限控制
+    @GetMapping("/treeSelect")
+    public R<List<TreeSelectVo>> treeSelect(${entity}Query query) {
+        QueryWrapper<${entity}> queryWrapper = buildTreeQueryWrapper(query);
+        return R.ok(${entity}Converter.build().treeSelectListVo(${table.entityPath}Service.getTreeVoList(queryWrapper)));
+    }
+
+    @ApiOperation("根据ID获取节点信息以及子节点信息")
+    @ApiImplicitParam(name = "id",value = "区域ID",required = true)
+    @Auth(isAuth = false)//不进行权限控制
+    @GetMapping("/tree/{id}")
+    public R<List<${entity}TreeVo>> getSubNodeListById(@PathVariable("id") Long id) {
+        List<${entity}TreeVo> treeVoList = ${table.entityPath}Service.getSubNodeListById(id);
+        return R.ok(TreeUtil.buildTree(treeVoList));
+    }
+
+    @ApiOperation("根据ID获取树")
+    @ApiImplicitParam(name = "id",value = "ID",required = true)
+    @Auth(isAuth = false)//不进行权限控制
+    @GetMapping("/tree/$entityPath/{id}")
+    public R<${entity}TreeVo> getTreeById(@PathVariable("id") Long id) {
+        ${entity}TreeVo treeVo = ${table.entityPath}Service.getTreeById(id);
+        return R.ok(treeVo);
     }
 
     /**
+    * 构建查询条件QueryWrapper
+    * @param query
+    * @return
+    */
+    private QueryWrapper<${entity}> buildTreeQueryWrapper(${entity}Query query) {
+        QueryWrapper<${entity}> queryWrapper = new QueryWrapper<>();
+        //构建查询条件
+        if(query != null){
+            //构建查询条件
+            if(query.getId() != null){
+                //查询出所有的父节点
+                List<${entity}TreeVo> treeVos = sysOrgService.getParentNodeTreeListById(query.getId());
+                if(CollectionUtil.isNotEmpty(treeVos)){
+                    List<Long> parentIds = new ArrayList<>();
+                    treeVos.forEach(treeVo -> {
+                        parentIds.add(treeVo.getId());
+                    });
+                    queryWrapper.eq(${entity}.PARENT_ID,0).or().isNull(${entity}.PARENT_ID).or().in(${entity}.ID,parentIds);
+                }else {
+                    queryWrapper.eq(${entity}.PARENT_ID,0).or().isNull(${entity}.PARENT_ID);
+                }
+            }
+            if(query.getParentId() != null){
+                queryWrapper.eq(${entity}.PARENT_ID,query.getParentId());
+            }
+        }
+        #if(${cfg.lazyTree})
+        if(queryWrapper.isEmptyOfWhere()){
+            queryWrapper.eq(${entity}.PARENT_ID,0).or().isNull(${entity}.PARENT_ID);
+        }
+        #end
+        return queryWrapper;
+    }
+#end
+    /**
      * 构建查询条件QueryWrapper
-     * @param ${table.entityPath}DTO
+     * @param query
      * @return
      */
-    private QueryWrapper<${entity}> buildQueryWrapper(${entity}DTO ${table.entityPath}DTO) {
+    private QueryWrapper<${entity}> buildQueryWrapper(${entity}Query query) {
         QueryWrapper<${entity}> queryWrapper = new QueryWrapper<>();
-        // todo 构建查询条件
+        //构建查询条件
+#foreach($field in ${table.fields})
+    #if(${field.propertyType.equals("boolean")})
+        #set($getprefix="is")
+    #else
+        #set($getprefix="get")
+    #end
+    #if(!${field.fill}) ##不是自动填充字段
+        #if(${field.propertyType.equals("String")})
+       if(StrUtil.isNotBlank(query.${getprefix}${field.capitalName}())){
+            queryWrapper.like(${entity}.${field.name.toUpperCase()},query.${getprefix}${field.capitalName}());
+        }
+        #else
+       if(query.${getprefix}${field.capitalName}() != null){
+            queryWrapper.eq(${entity}.${field.name.toUpperCase()},query.${getprefix}${field.capitalName}());
+        }
+        #end
+    #end
+#end
+#if(${cfg.excelCodeGenerate})
+        if(ArrayUtil.isNotEmpty(query.getIds())){
+            queryWrapper.in(${entity}.ID,Arrays.asList(query.getIds()));
+        }
+#end
         return queryWrapper;
     }
 }

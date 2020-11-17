@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.util.Objects;
 
 /**
  * Created by gacl on 2017/10/17.
@@ -145,5 +146,114 @@ public class FileUtil {
         byte[] digest = md5.digest(uploadBytes);
         String hashString = new BigInteger(1, digest).toString(16);
         return hashString;
+    }
+
+    public static InputStream getResourcesFileInputStream(String fileName) {
+        return Thread.currentThread().getContextClassLoader().getResourceAsStream("" + fileName);
+    }
+
+    public static String getPath() {
+        return FileUtil.class.getResource("/").getPath();
+    }
+
+    public static File createNewFile(String pathName) {
+        File file = new File(getPath() + pathName);
+        if (file.exists()) {
+            file.delete();
+        } else {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+        }
+        return file;
+    }
+
+    public static File readFile(String pathName) {
+        return new File(getPath() + pathName);
+    }
+
+    public static File readUserHomeFile(String pathName) {
+        return new File(System.getProperty("user.home") + File.separator + pathName);
+    }
+
+    /**
+     * 删除文件，可以是文件或文件夹
+     *
+     * @param fileName
+     *            要删除的文件名
+     * @return 删除成功返回true，否则返回false
+     */
+    public static boolean delete(String fileName) {
+        File file = new File(fileName);
+        if (!file.exists()) {
+            return false;
+        } else {
+            if (file.isFile()){
+                return deleteFile(fileName);
+            }
+            else {
+                return deleteDirectory(fileName);
+            }
+        }
+    }
+
+    /**
+     * 删除单个文件
+     *
+     * @param fileName
+     *            要删除的文件的文件名
+     * @return 单个文件删除成功返回true，否则返回false
+     */
+    public static boolean deleteFile(String fileName) {
+        File file = new File(fileName);
+        // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
+        if (file.exists() && file.isFile()) {
+            return file.delete();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 删除目录及目录下的文件
+     *
+     * @param dir
+     *            要删除的目录的文件路径
+     * @return 目录删除成功返回true，否则返回false
+     */
+    public static boolean deleteDirectory(String dir) {
+        // 如果dir不以文件分隔符结尾，自动添加文件分隔符
+        if (!dir.endsWith(File.separator)){
+            dir = dir + File.separator;
+        }
+        File dirFile = new File(dir);
+        // 如果dir对应的文件不存在，或者不是一个目录，则退出
+        if ((!dirFile.exists()) || (!dirFile.isDirectory())) {
+            return false;
+        }
+        boolean flag = true;
+        // 删除文件夹中的所有文件包括子目录
+        File[] files = dirFile.listFiles();
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+            // 删除子文件
+            if (files[i].isFile()) {
+                flag = deleteFile(files[i].getAbsolutePath());
+                if (!flag){
+                    break;
+                }
+            }
+            // 删除子目录
+            else if (files[i].isDirectory()) {
+                flag = deleteDirectory(files[i].getAbsolutePath());
+                if (!flag){
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            return false;
+        }
+        // 删除当前目录
+        return dirFile.delete();
     }
 }

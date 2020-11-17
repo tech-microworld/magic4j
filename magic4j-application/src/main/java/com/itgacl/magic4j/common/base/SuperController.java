@@ -1,21 +1,16 @@
 package com.itgacl.magic4j.common.base;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.pagehelper.PageHelper;
 import com.itgacl.magic4j.common.bean.LoginUser;
-import com.itgacl.magic4j.common.bean.PageDomain;
-import com.itgacl.magic4j.common.bizCache.BizCacheService;
+import com.itgacl.magic4j.common.bean.PageParam;
+import com.itgacl.magic4j.common.cache.biz.BizCacheService;
 import com.itgacl.magic4j.common.context.LoginUserContext;
 import com.itgacl.magic4j.libcommon.constant.Constants;
 import com.itgacl.magic4j.libcommon.controller.Magic4jBaseController;
 import com.itgacl.magic4j.libcommon.util.SpringContextUtils;
-import com.itgacl.magic4j.libcommon.util.sql.SqlUtil;
-import com.itgacl.magic4j.modules.sys.dto.SysUserDTO;
 import com.itgacl.magic4j.modules.sys.dto.TokenDTO;
-import com.itgacl.magic4j.modules.sys.entity.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +39,7 @@ public class SuperController extends Magic4jBaseController {
     /**
      * 排序的方向 "desc" 或者 "asc".
      */
-    public static final String IS_ASC = "isAsc";
+    public static final String SORT_DIRECTION = "sortDirection";
 
     /**
      * 获取当前登录的系统用户
@@ -89,31 +84,24 @@ public class SuperController extends Magic4jBaseController {
      */
     protected <T> Page<T> getPage() {
         HttpServletRequest request = SpringContextUtils.getRequest();
-        PageDomain pageDomain = new PageDomain();
+        PageParam pageDomain = new PageParam();
         pageDomain.setPageNum(Integer.valueOf(request.getParameter(PAGE_NUM)));
         pageDomain.setPageSize(Integer.valueOf(request.getParameter(PAGE_SIZE)));
         pageDomain.setOrderByColumn(request.getParameter(ORDER_BY_COLUMN));
-        pageDomain.setIsAsc(request.getParameter(IS_ASC));
+        pageDomain.setSortDirection(request.getParameter(SORT_DIRECTION));
         Page<T> page = new Page<>(pageDomain.getPageNum(),pageDomain.getPageSize());
         page.addOrder(OrderItem.desc(pageDomain.getOrderByColumn()));//排序
         return page;
     }
 
     /**
-     * 设置请求分页数据，基于PageHelper
+     * 封装分页对象，基于mybatisPlus
      */
-    protected void startPage() {
-        HttpServletRequest request = SpringContextUtils.getRequest();
-        PageDomain pageDomain = new PageDomain();
-        pageDomain.setPageNum(Integer.valueOf(request.getParameter(PAGE_NUM)));
-        pageDomain.setPageSize(Integer.valueOf(request.getParameter(PAGE_SIZE)));
-        pageDomain.setOrderByColumn(request.getParameter(ORDER_BY_COLUMN));
-        pageDomain.setIsAsc(request.getParameter(IS_ASC));
-        Integer pageNum = pageDomain.getPageNum();
-        Integer pageSize = pageDomain.getPageSize();
-        if (ObjectUtil.isNotNull(pageNum) && ObjectUtil.isNotNull(pageSize)) {
-            String orderBy = SqlUtil.escapeOrderBySql(pageDomain.getOrderBy());
-            PageHelper.startPage(pageNum, pageSize, orderBy);
+    protected <T> Page<T> getPage(PageParam pageParam) {
+        Page<T> page = new Page<>(pageParam.getPageNum(),pageParam.getPageSize());
+        if(StrUtil.isNotBlank(pageParam.getOrderByColumn())){
+            page.addOrder(OrderItem.desc(pageParam.getOrderByColumn()));//排序
         }
+        return page;
     }
 }

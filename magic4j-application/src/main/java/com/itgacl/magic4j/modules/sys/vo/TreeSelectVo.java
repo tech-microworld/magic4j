@@ -1,10 +1,12 @@
 package com.itgacl.magic4j.modules.sys.vo;
 
 import com.itgacl.magic4j.libcommon.bean.TreeNode;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -17,9 +19,7 @@ public class TreeSelectVo extends TreeNode<TreeSelectVo,Long> implements Seriali
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 节点名称
-     */
+    @ApiModelProperty("节点名称")
     private String label;
 
     public TreeSelectVo(DeptTreeVo deptTreeVo) {
@@ -33,4 +33,10 @@ public class TreeSelectVo extends TreeNode<TreeSelectVo,Long> implements Seriali
         this.label = resourceVo.getName();
         this.setChildren(resourceVo.getChildren().stream().map(TreeSelectVo::new).collect(Collectors.toList()));
     }
+
+   /* public TreeSelectVo(AreaTreeVo areaTreeVo) {
+        this.setId(areaTreeVo.getId());
+        this.label = areaTreeVo.getName();
+        this.setChildren(areaTreeVo.getChildren().stream().map(TreeSelectVo::new).collect(Collectors.toList()));
+    }*/
 }

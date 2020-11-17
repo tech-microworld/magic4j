@@ -1,0 +1,58 @@
+#if(${package.ModuleName})
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo;
+#else
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo;
+#end
+
+#foreach($pkg in ${table.importPackages})
+import ${pkg};
+#end
+
+import lombok.Data;
+#if(${swagger2})
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+#end
+#if(${cfg.excelCodeGenerate})
+import com.alibaba.excel.annotation.ExcelIgnore;
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.ContentRowHeight;
+import com.alibaba.excel.annotation.write.style.HeadRowHeight;
+#end
+/**
+ * @Classname ${entity}Vo
+ * @Description ${entity}的展示对象
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+#if(${swagger2})
+@ApiModel(value="${entity}对象Vo")
+#end
+#if(${cfg.excelCodeGenerate})
+@ColumnWidth(25)
+@HeadRowHeight(20)
+@ContentRowHeight(18)
+#end
+@Data
+public class ${entity}Vo  implements Serializable{
+
+    #foreach($field in ${table.fields})
+    #if("$!field.comment" != "")
+    #if(${swagger2})
+    @ApiModelProperty(value = "${field.comment}")
+    #else
+    /**
+     * ${field.comment}
+     */
+    #end
+    #if(${cfg.excelCodeGenerate})
+    @ExcelProperty("${field.comment}")
+    #end
+    #end
+    private ${field.propertyType} ${field.propertyName};
+
+    #end
+
+}

@@ -2,13 +2,23 @@ package ${package.Service};
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 #if(${package.ModuleName})
-import com.itgacl.magic4j.modules.${package.ModuleName}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo.${entity}Vo;
+    #if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo.${entity}TreeVo;
+    #end
 #else
-import com.itgacl.magic4j.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.dto.${entity}DTO;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.${entity}Vo;
+    #if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.${entity}TreeVo;
+    #end
 #end
 import ${package.Entity}.${entity};
-
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.bean.PageData;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.bean.PageParam;
 import java.util.List;
 
 /**
@@ -23,6 +33,10 @@ public interface ${table.serviceName} extends IService<${entity}> {
     void create(${entity}DTO ${table.entityPath}DTO);
 
     void update(${entity}DTO ${table.entityPath}DTO);
+
+#if(${cfg.excelCodeGenerate})
+    void importData(List<${entity}DTO> dataList, Boolean isCovered);
+#end
 #foreach($field in ${table.fields})
     #if(${field.keyFlag}) ##主键字段
 
@@ -30,11 +44,42 @@ public interface ${table.serviceName} extends IService<${entity}> {
 
     void deleteByIds(List<${field.propertyType}> idList);
 
-    ${entity}DTO get${entity}ById(${field.propertyType} id);
+    ${entity}Vo get${entity}ById(${field.propertyType} id);
+
     #end
 #end
+    void delete(QueryWrapper<${entity}> queryWrapper);
 
     void deleteAll();
 
-    List<${entity}DTO> getList(QueryWrapper<${entity}> queryWrapper);
+    List<${entity}Vo> getList(QueryWrapper<${entity}> queryWrapper);
+
+    PageData<${entity}Vo> pageList(Page<${entity}> page, QueryWrapper<${entity}> queryWrapper);
+
+    PageData<${entity}Vo> pageList(PageParam pageParam, QueryWrapper<${entity}> queryWrapper);
+    #if(${cfg.isTreeTable})
+
+    /**
+    * 根据ID获取信息以及子节点列表
+    * @param id
+    * @return
+    */
+    List<${entity}TreeVo> getSubNodeListById(Long id);
+
+    /**
+     * 根据ID获取父节点列表
+     * @param id
+     * @return
+     */
+    List<${entity}TreeVo> getParentNodeTreeListById(Long id);
+
+    /**
+     * 根据ID获取树
+     * @param id
+     * @return
+     */
+    ${entity}TreeVo getTreeById(Long id);
+
+    List<${entity}TreeVo> getTreeVoList(QueryWrapper<${entity}> queryWrapper);
+    #end
 }

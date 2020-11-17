@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author Created by xudp (alias:孤傲苍狼) 290603672@qq.com
- * @since 2020-04-06
+ * @since 2020-08-28
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -35,14 +35,14 @@ public class SysPost implements Serializable {
     private Long id;
 
     /**
-     * 岗位编码
-     */
-    private String postCode;
-
-    /**
      * 岗位名称
      */
     private String postName;
+
+    /**
+     * 岗位编码
+     */
+    private String postCode;
 
     /**
      * 显示顺序
@@ -53,6 +53,11 @@ public class SysPost implements Serializable {
      * 状态（0正常 1停用）
      */
     private Integer status;
+
+    /**
+     * 岗位分类：1：高层，2：中层，3：基层，4：其他
+     */
+    private Integer postCategory;
 
     /**
      * 租户ID
@@ -98,13 +103,15 @@ public class SysPost implements Serializable {
 
     public static final String ID = "id";
 
-    public static final String POST_CODE = "post_code";
-
     public static final String POST_NAME = "post_name";
+
+    public static final String POST_CODE = "post_code";
 
     public static final String ORDER_NUM = "order_num";
 
     public static final String STATUS = "status";
+
+    public static final String POST_CATEGORY = "post_category";
 
     public static final String TENANT_ID = "tenant_id";
 

@@ -4,11 +4,13 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itgacl.magic4j.common.cache.sys.SysCache;
 import com.itgacl.magic4j.common.enums.ErrorCodeEnum;
 import com.itgacl.magic4j.common.util.AssertUtil;
 import com.itgacl.magic4j.common.validator.DataValidator;
 import com.itgacl.magic4j.modules.sys.dto.SysDictDTO;
 import com.itgacl.magic4j.modules.sys.entity.SysDict;
+import com.itgacl.magic4j.modules.sys.excel.DictExcel;
 import com.itgacl.magic4j.modules.sys.mapper.SysDictMapper;
 import com.itgacl.magic4j.modules.sys.service.SysDictService;
 import org.springframework.beans.BeanUtils;
@@ -80,7 +82,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     }
 
     @Override
-    public List<SysDictDTO> getList(QueryWrapper queryWrapper) {
+    public List<SysDictDTO> getList(QueryWrapper<SysDict> queryWrapper) {
         List<SysDictDTO> sysDictDTOList = new ArrayList<>();
         List<SysDict> sysDictList = list(queryWrapper);
         if(CollectionUtil.isNotEmpty(sysDictList)){
@@ -91,6 +93,26 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
             });
         }
         return sysDictDTOList;
+    }
+
+    /**
+     * 导入数据字典
+     * @param data
+     * @param isCovered
+     */
+    @Override
+    public void importDict(List<DictExcel> data, Boolean isCovered) {
+        data.forEach(dictExcel -> {
+            SysDictDTO dictDTO = new SysDictDTO();
+            BeanUtils.copyProperties(dictExcel,dictDTO);
+            if(isCovered) {
+                SysDict oldDict = SysCache.getDict(dictExcel.getDictType(), dictExcel.getDictCode());
+                dictDTO.setId(oldDict.getId());
+                update(dictDTO);
+            }else {
+                create(dictDTO);
+            }
+        });
     }
 
     /**

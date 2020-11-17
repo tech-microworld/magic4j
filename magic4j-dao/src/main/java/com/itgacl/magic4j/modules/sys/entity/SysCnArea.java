@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -14,76 +16,56 @@ import lombok.experimental.Accessors;
  * 中国行政区域
  * </p>
  *
- * @author 孤傲苍狼
- * @since 2020-03-29
+ * @author Created by xudp (alias:孤傲苍狼) 290603672@qq.com
+ * @since 2020-09-04
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("sys_cn_area")
+@ApiModel(value="SysCnArea对象", description="中国行政区域")
 public class SysCnArea implements Serializable {
 
     private static final long serialVersionUID=1L;
 
-    /**
-     * ID
-     */
+    @ApiModelProperty(value = "ID")
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 名称
-     */
+    @ApiModelProperty(value = "名称")
     private String name;
 
-    /**
-     * 简称
-     */
+    @ApiModelProperty(value = "简称")
     private String shortName;
 
-    /**
-     * 父ID
-     */
+    @ApiModelProperty(value = "父ID")
     private Long parentId;
 
-    /**
-     * 父名称
-     */
+    @ApiModelProperty(value = "父名称")
     private String parentName;
 
-    /**
-     * 合并名称
-     */
+    @ApiModelProperty(value = "合并名称")
     private String mergerName;
 
-    /**
-     * 级别
-     */
+    @ApiModelProperty(value = "级别")
     private Integer level;
 
-    /**
-     * 邮政编码
-     */
+    @ApiModelProperty(value = "邮政编码")
     private Integer zipCode;
 
-    /**
-     * 城市编码
-     */
+    @ApiModelProperty(value = "城市编码")
     private String cityCode;
 
-    /**
-     * 拼音
-     */
+    @ApiModelProperty(value = "行政区划代码")
+    private String areaCode;
+
+    @ApiModelProperty(value = "拼音")
     private String pinyin;
 
-    /**
-     * 经度
-     */
+    @ApiModelProperty(value = "经度")
     private BigDecimal lng;
 
-    /**
-     * 纬度
-     */
+    @ApiModelProperty(value = "纬度")
     private BigDecimal lat;
 
 
@@ -104,6 +86,8 @@ public class SysCnArea implements Serializable {
     public static final String ZIP_CODE = "zip_code";
 
     public static final String CITY_CODE = "city_code";
+
+    public static final String AREA_CODE = "area_code";
 
     public static final String PINYIN = "pinyin";
 

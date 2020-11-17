@@ -8,13 +8,27 @@ spring:
   profiles:
      include: common #引入外部yml配置文件：application-common.yml，application-common.yml的前缀一定要和主配置文件application.yml的名字一致
   datasource:
-    url: jdbc:p6spy:mysql://127.0.0.1:3506/magic4j?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai #DB连接添加serverTimezone=Asia/Shanghai配置解决mysql插入时间比实际时间少了八个小时的问题
+    url: jdbc:p6spy:mysql://127.0.0.1:3306/magic4j?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai #DB连接添加serverTimezone=Asia/Shanghai配置解决mysql插入时间比实际时间少了八个小时的问题
     username: root
     password: abcd1234
     driver-class-name: com.p6spy.engine.spy.P6SpyDriver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
-      maximumPoolSize: ${SPRING_DATASOURCE_MAXIMUM_POOL_SIZE:20}
+      #maximumPoolSize: ${SPRING_DATASOURCE_MAXIMUM_POOL_SIZE:20}
+      # 连接池最大连接数，默认是 10
+      maximum-pool-size: 60
+      # 链接超时时间，默认 30000(30 秒)
+      connection-timeout: 60000
+      # 空闲连接存活最大时间，默认 600000(10 分钟)
+      idle-timeout: 60000
+      # 连接将被测试活动的最大时间量
+      validation-timeout: 3000
+      # 此属性控制池中连接的最长生命周期，值 0 表示无限生命周期，默认 1800000(30 分钟)
+      max-lifetime: 60000
+      # 连接到数据库时等待的最长时间(秒)
+      login-timeout: 5
+      # 池中维护的最小空闲连接数
+      minimum-idle: 10
   aop:
     auto: true
     proxy-target-class: true
@@ -59,26 +73,26 @@ magic4j:
     type: ${CACHE_TYPE:caffeine}
   #logback日志配置
   log:
-    path: ${MAGIC4J_LOG_PATH:G:/logs} #日志文件的存放路径
-    level: ${MAGIC4J_LOG_LEVEL:debug} #日志打印级别
+    path: ${LOG_PATH:./logs} #日志文件的存放路径
+    level: ${LOG_LEVEL:debug} #日志打印级别
   #数据权限控制开关
   dataScope:
     enabled: true #开启数据权限过滤(true:开启，false：关闭)
-  #多租户配置
-  tenant:
-    ignoreTenantTables: #没有带tenant_id的表需要忽略
-      - sys_tenant
-      - sys_resource
-      - sys_user_role
-      - sys_role_resource
-      - sys_role_dept
-      - sys_dict
-      - sys_cn_area
-      - schedule_job
-      - schedule_job_log
-      - sys_user_post
-    tenantIdColumn: tenant_id #租户ID字段名称
-    enabled: true #开启多租户模式(true:开启，false：关闭)
+  #多租户配置(如果需要开启多租户模式，将租户配置打开)
+#  tenant:
+#    ignoreTenantTables: #没有带tenant_id的表需要忽略
+#      - sys_tenant
+#      - sys_resource
+#      - sys_user_role
+#      - sys_role_resource
+#      - sys_role_dept
+#      - sys_dict
+#      - sys_cn_area
+#      - schedule_job
+#      - schedule_job_log
+#      - sys_user_post
+#    tenantIdColumn: tenant_id #租户ID字段名称
+#    enabled: false #开启多租户模式(true:开启，false：关闭)
   # jwtToken配置
   jwt:
     authorization: Authorization # 令牌自定义标识
@@ -89,3 +103,36 @@ magic4j:
     enabled: true #是否启用jwt
   #允许删除全部数据的表
   allowDeleteAllTables: sys_log,schedule_job_log
+  #swagger配置
+  swagger:
+    enable: ${SWAGGER_ENABLE:true} #启用/禁用配置(true,启用，false禁用)
+    title: ${SWAGGER_TITLE:magic4j REST API}
+    description: ${SWAGGER_DESCRIPTION:<a href='http://file.itgacl.com/magic4j-docs' target='_bank'>magic4j接口文档</a>，严格遵循RESTFUL API设计规范。}
+    contact:
+      name: ${SWAGGER_CONTACT_NAME:孤傲苍狼}
+      url: ${SWAGGER_CONTACT_URL:http://blog.itgacl.com}
+      email: ${SWAGGER_CONTACT_EMAIL:290603672@qq.com}
+    license:
+      title: ${SWAGGER_LICENSE_TITLE:MIT License}
+      url: ${SWAGGER_LICENSE_URL:https://gitee.com/gacl/magic4j/blob/master/LICENSE}
+    version: ${SWAGGER_VERSION:1.0}
+
+
+app:
+  wx:
+    #微信小程序配置
+    miniapp:
+      configs:
+        - appid: wx74f15xxxx  #微信小程序appId
+          secret: xxxxx #微信小程序的Secret
+          token: #微信小程序消息服务器配置的token
+          aesKey: #微信小程序消息服务器配置的EncodingAESKey
+          msgDataFormat: JSON
+    #微信支付配置
+    pay:
+      appId: wx74f15xxxxx  #微信小程序appId
+      mchId: xxxx #微信支付商户号
+      mchKey: xxxx #微信支付商户API密钥
+      keyPath: classpath:wxCert/apiclient_cert.p12 # p12证书的位置，可以指定绝对路径，也可以指定类路径（以classpath:开头）
+      notifyUrl: https://xxx.com/wx/api/pay/notify #微信支付异步回掉地址，通知url必须为直接可访问的url，不能携带参数
+      refundNotifyUrl: https://xxx.com/wx/api/pay/notify #微信退款异步回掉地址，通知url必须为直接可访问的url，不能携带参数

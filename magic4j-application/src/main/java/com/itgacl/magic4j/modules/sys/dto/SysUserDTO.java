@@ -82,6 +82,10 @@ public class SysUserDTO extends BaseDTO implements Serializable{
 
     private Long[] postIds;
 
+    private Long[] userIds;
+
+    private String[] exportColumnNames;
+
     /**
      * 租户ID
      */

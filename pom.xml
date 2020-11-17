@@ -9,7 +9,7 @@
 		<module>magic4j-dao</module>
 		<module>magic4j-application</module>
         <module>magic4j-starter</module>
-    </modules>
+	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -36,12 +36,12 @@
 		<jwt.version>0.9.0</jwt.version>
 		<hutool.version>5.2.3</hutool.version>
 		<spring.boot.version>2.2.5.RELEASE</spring.boot.version>
-		<mybatis-plus.version>3.3.1.tmp</mybatis-plus.version>
+		<mybatis-plus.version>3.4.0</mybatis-plus.version>
 		<velocity.version>2.2</velocity.version>
 		<p6spy.version>3.8.0</p6spy.version>
 		<druid-spring-boot-starter.version>1.1.10</druid-spring-boot-starter.version>
 		<commons-collections.version>3.2.1</commons-collections.version>
-		<commons-lang3.version>3.5</commons-lang3.version>
+		<commons-lang3.version>3.11</commons-lang3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-codec.version>1.10</commons-codec.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
@@ -55,12 +55,12 @@
 		<velocity-version>1.7</velocity-version>
 		<velocity-tools-version>2.0</velocity-tools-version>
 		<ehcache-version>2.6.6</ehcache-version>
-		<google.zxing.version>3.3.0</google.zxing.version>
+		<google.zxing.version>3.4.0</google.zxing.version>
 		<google.guava.version>21.0</google.guava.version>
 		<slf4j.version>1.7.19</slf4j.version>
-		<springfox-swagger2.version>2.6.1</springfox-swagger2.version>
+		<springfox-swagger2.version>2.9.2</springfox-swagger2.version>
 		<quartz.version>2.3.0</quartz.version>
-		<wxJava.version>3.3.7.B</wxJava.version>
+		<wxJava.version>3.8.3.B</wxJava.version>
 		<jpinyin.version>1.1.8</jpinyin.version>
 		<userAgentUtils.version>1.20</userAgentUtils.version>
 		<fastdfs-client-java.version>1.27</fastdfs-client-java.version>
@@ -71,6 +71,9 @@
 		<pagehelper.spring.boot.starter.version>1.2.5</pagehelper.spring.boot.starter.version>
 		<passay.version>1.5.0</passay.version>
 		<joda.time.version>2.9.9</joda.time.version>
+		<ip2region.version>1.7.2</ip2region.version>
+		<java-emoji-converter.version>1.0.1</java-emoji-converter.version>
+		<easyexcel.version>2.2.6</easyexcel.version>
 	</properties>
 
 	<!-- 设定maven jar包下载仓库 -->
@@ -91,14 +94,6 @@
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
-		</repository>
-		<repository>
-			<id>rdc-releases</id>
-			<url>https://repo.rdc.aliyun.com/repository/125933-release-q8Q7J4/</url>
-		</repository>
-		<repository>
-			<id>rdc-snapshots</id>
-			<url>https://repo.rdc.aliyun.com/repository/125933-snapshot-sGTVmv/</url>
 		</repository>
 	</repositories>
 
@@ -128,6 +123,21 @@
 			<dependency>
 				<groupId>com.itgacl</groupId>
 				<artifactId>magic4j-libCommon</artifactId>
+				<version>${project.release.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.itgacl</groupId>
+				<artifactId>fastdfs-spring-boot-starter</artifactId>
+				<version>${project.release.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.itgacl</groupId>
+				<artifactId>jsch-spring-boot-starter</artifactId>
+				<version>${project.release.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.itgacl</groupId>
+				<artifactId>cloudStorage-spring-boot-starter</artifactId>
 				<version>${project.release.version}</version>
 			</dependency>
 			<dependency>
@@ -170,6 +180,11 @@
 			<dependency>
 				<groupId>com.google.zxing</groupId>
 				<artifactId>core</artifactId>
+				<version>${google.zxing.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.zxing</groupId>
+				<artifactId>javase</artifactId>
 				<version>${google.zxing.version}</version>
 			</dependency>
 			<dependency>
@@ -241,6 +256,11 @@
 				<version>${wxJava.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.github.binarywang</groupId>
+				<artifactId>java-emoji-converter</artifactId>
+				<version>${java-emoji-converter.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.alibaba</groupId>
 				<artifactId>fastjson</artifactId>
 				<version>${fastjson.version}</version>
@@ -255,18 +275,6 @@
 				<groupId>cn.hutool</groupId>
 				<artifactId>hutool-all</artifactId>
 				<version>${hutool.version}</version>
-			</dependency>
-			<!--引入封装好的fastdfs-client-->
-			<dependency>
-				<groupId>com.itgacl</groupId>
-				<artifactId>fastdfs-client</artifactId>
-				<version>${fastdfs-client.version}</version>
-			</dependency>
-			<!--引入封装好的jsch-->
-			<dependency>
-				<groupId>com.itgacl</groupId>
-				<artifactId>jsch</artifactId>
-				<version>${jsch.version}</version>
 			</dependency>
 			<!-- 拼音转换处理-->
 			<dependency>
@@ -299,6 +307,29 @@
 				<groupId>org.passay</groupId>
 				<artifactId>passay</artifactId>
 				<version>${passay.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lionsoul</groupId>
+				<artifactId>ip2region</artifactId>
+				<version>${ip2region.version}</version>
+			</dependency>
+			<!-- swagger RESTful API 文档 -->
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger2</artifactId>
+				<version>${springfox-swagger2.version}</version>
+			</dependency>
+			<!-- swagger ui  -->
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger-ui</artifactId>
+				<version>${springfox-swagger2.version}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/com.alibaba/easyexcel -->
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>easyexcel</artifactId>
+				<version>${easyexcel.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -401,6 +432,16 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<!--生成骨架的插件-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-archetype-plugin</artifactId>
+				<version>3.1.2</version>
+				<configuration>
+					<!--生成骨架时使用archetype.properties配置文件-->
+					<propertyFile>archetype.properties</propertyFile>
+				</configuration>
 			</plugin>
 		</plugins>
 		<!--插件管理-->

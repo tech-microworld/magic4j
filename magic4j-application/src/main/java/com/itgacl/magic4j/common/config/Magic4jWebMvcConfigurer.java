@@ -1,8 +1,9 @@
 package com.itgacl.magic4j.common.config;
 
+import com.itgacl.magic4j.common.interceptor.AppLoginInterceptor;
 import com.itgacl.magic4j.libcommon.component.resolver.Magic4jMethodArgumentResolver;
 import com.itgacl.magic4j.common.interceptor.LoginInterceptor;
-import com.itgacl.magic4j.common.interceptor.NotEmptyInterceptor;
+import com.itgacl.magic4j.libcommon.interceptor.ValidatorInterceptor;
 import com.itgacl.magic4j.common.interceptor.AuthInterceptor;
 import com.itgacl.magic4j.libcommon.interceptor.AutoIdempotentInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class Magic4jWebMvcConfigurer implements WebMvcConfigurer {
     /**
      * 非空校验拦截器
      */
-    private final NotEmptyInterceptor notEmptyInterceptor;
+    private final ValidatorInterceptor validatorInterceptor;
 
     /**
      * 登录拦截器
@@ -46,6 +47,12 @@ public class Magic4jWebMvcConfigurer implements WebMvcConfigurer {
      */
     private final AutoIdempotentInterceptor autoIdempotentInterceptor;
 
+    /**
+     *
+     * App登录拦截器
+     */
+    private final AppLoginInterceptor appLoginInterceptor;
+
     @Value("${magic4j.storage.local.fileUrlPathPattern}")
     private String fileUrlPathPattern; //上传到本地服务器的文件的访问映射地址
 
@@ -53,17 +60,19 @@ public class Magic4jWebMvcConfigurer implements WebMvcConfigurer {
      * 构造注入
      * @param autoIdempotentInterceptor
      * @param magic4jMethodArgumentResolver
-     * @param notEmptyInterceptor
+     * @param validatorInterceptor
      * @param loginInterceptor
      * @param authInterceptor
+     * @param appLoginInterceptor
      */
     @Autowired
-    public Magic4jWebMvcConfigurer(AutoIdempotentInterceptor autoIdempotentInterceptor, Magic4jMethodArgumentResolver magic4jMethodArgumentResolver, NotEmptyInterceptor notEmptyInterceptor, LoginInterceptor loginInterceptor, AuthInterceptor authInterceptor) {
+    public Magic4jWebMvcConfigurer(AutoIdempotentInterceptor autoIdempotentInterceptor, Magic4jMethodArgumentResolver magic4jMethodArgumentResolver, ValidatorInterceptor validatorInterceptor, LoginInterceptor loginInterceptor, AuthInterceptor authInterceptor, AppLoginInterceptor appLoginInterceptor) {
         this.autoIdempotentInterceptor = autoIdempotentInterceptor;
         this.magic4jMethodArgumentResolver = magic4jMethodArgumentResolver;
-        this.notEmptyInterceptor = notEmptyInterceptor;
+        this.validatorInterceptor = validatorInterceptor;
         this.loginInterceptor = loginInterceptor;
         this.authInterceptor = authInterceptor;
+        this.appLoginInterceptor = appLoginInterceptor;
     }
 
     /**
@@ -81,11 +90,23 @@ public class Magic4jWebMvcConfigurer implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/captchaImage",
                         "/api/login",
+                        "/api/logout",
+                        "/api/access/areaMap",
                         "/api/auth/token/refresh",
                         "/api/cache/**",
                         "/api/tool/**",
+                        "/api/comm/**",
                         "/api/storage/**",
+                        "/api/email/**",
+                        "/api/sys/cnArea/updateData",
                         "/error",
+                        fileUrlPathPattern
+                );
+
+        registry.addInterceptor(appLoginInterceptor)
+                .addPathPatterns("/app/api/**")
+                .excludePathPatterns(
+                        "/app/api/user/login",
                         fileUrlPathPattern
                 );
 
@@ -99,7 +120,9 @@ public class Magic4jWebMvcConfigurer implements WebMvcConfigurer {
                         "/api/login/user",
                         "/api/cache/**",
                         "/api/tool/**",
+                        "/api/comm/**",
                         "/api/storage/**",
+                        "/api/email/**",
                         "/error",
                         fileUrlPathPattern
                 );
@@ -107,7 +130,7 @@ public class Magic4jWebMvcConfigurer implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/error");
         //拦截所有请求
-        registry.addInterceptor(notEmptyInterceptor)
+        registry.addInterceptor(validatorInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/error");
     }

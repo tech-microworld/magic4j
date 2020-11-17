@@ -2,14 +2,16 @@ package com.itgacl.magic4j.libcommon.component.storage.service.impl;
 
 import com.itgacl.magic4j.libcommon.component.storage.bean.UploadResult;
 import com.itgacl.magic4j.libcommon.component.storage.enums.StorageTypeEnum;
-import com.itgacl.magic4j.libcommon.constant.Constants;
 import com.itgacl.ssh2.jsch.JschService;
+import com.itgacl.ssh2.jsch.annotation.EnableSFTP;
 import com.itgacl.ssh2.jsch.bean.JschUploadResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -21,6 +23,7 @@ import java.util.Map;
  * 基于Jsch SSH上传实现
  */
 @Slf4j
+@ConditionalOnBean(annotation = EnableSFTP.class)
 @Service
 public class SftpStorageServiceImpl extends BaseStorageService {
 
@@ -29,6 +32,10 @@ public class SftpStorageServiceImpl extends BaseStorageService {
     @Autowired
     private JschService jschService;
 
+    @PostConstruct
+    public void  init(){
+        log.debug("----初始化SftpStorageServiceImpl----");
+    }
 
     @Override
     public UploadResult uploadFile(InputStream inputStream, String fileName, String savePath) {

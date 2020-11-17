@@ -1,0 +1,115 @@
+#if(${package.ModuleName})
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.converter;
+#else
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.converter;
+#end
+
+#if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.util.TreeUtil;
+import org.apache.commons.collections.CollectionUtils;
+#end
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.converter.BaseConverter;
+#if(${package.ModuleName})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.entity.${entity};
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo.${entity}Vo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.dto.${entity}DTO;
+    #if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.vo.${entity}TreeVo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.sys.vo.TreeSelectVo;
+    #end
+#else
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.entity.${entity};
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.${entity}Vo;
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.dto.${entity}DTO;
+    #if(${cfg.isTreeTable})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.vo.${entity}TreeVo;
+    #end
+#end
+import org.springframework.beans.BeanUtils;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Classname ${entity}转换器
+ * @Description Entity、VO、DTO相互转换器
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+public class ${entity}Converter extends BaseConverter<${entity}, ${entity}Vo, ${entity}DTO> {
+
+    public static ${entity}Converter build() {
+        return new ${entity}Converter();
+    }
+
+    @Override
+    public ${entity}Vo vo(${entity} entity) {
+        ${entity}Vo ${table.entityPath}Vo = new ${entity}Vo();
+        BeanUtils.copyProperties(entity,${table.entityPath}Vo);
+        return ${table.entityPath}Vo;
+    }
+
+    @Override
+    public ${entity} entity(${entity}DTO entityDto) {
+        ${entity} ${table.entityPath} = new ${entity}();
+        BeanUtils.copyProperties(entityDto,${table.entityPath});
+        return ${table.entityPath};
+    }
+
+#if(${cfg.isTreeTable})
+    public ${entity}TreeVo treeVo(${entity} entity){
+        ${entity}TreeVo treeVo = new ${entity}TreeVo();
+        BeanUtils.copyProperties(entity,treeVo);
+        treeVo.setId(entity.getId());
+        if(entity.getParentId() != null){
+            treeVo.setParentId(entity.getParentId());
+        }
+        return treeVo;
+    }
+
+    public List<${entity}TreeVo> treeListVo(List<${entity}> ${table.entityPath}List){
+        List<${entity}TreeVo> treeVoList = new ArrayList<>();
+        ${table.entityPath}List.forEach(${table.entityPath} -> treeVoList.add(treeVo(${table.entityPath})));
+        return treeVoList;
+    }
+
+    public TreeSelectVo treeSelectVo(${entity}TreeVo treeVo) {
+        TreeSelectVo treeSelectVo = new TreeSelectVo();
+        treeSelectVo.setId(treeVo.getId());
+        treeSelectVo.setLabel(treeVo.getName());
+        findChildren(treeSelectVo,treeVo);
+        return treeSelectVo;
+    }
+
+    public List<TreeSelectVo> treeSelectListVo(List<${entity}TreeVo> ${table.entityPath}TreeVoList) {
+        List<${entity}TreeVo> treeVoList = TreeUtil.buildTree(${table.entityPath}TreeVoList);
+        List<TreeSelectVo> treeSelectVos = new ArrayList<>();
+        treeVoList.forEach(treeVo -> {
+            TreeSelectVo treeSelectVo = treeSelectVo(treeVo);
+            treeSelectVos.add(treeSelectVo);
+        });
+        return treeSelectVos;
+    }
+
+    /**
+    * 递归子节点
+    */
+    private void findChildren(TreeSelectVo treeSelectVo,${entity}TreeVo treeNodeVo){
+        List<TreeSelectVo> childrenVoList = new ArrayList<>();
+        //子节点信息
+        List<${entity}TreeVo> subNodeList = treeNodeVo.getChildren();
+        if(CollectionUtils.isNotEmpty(subNodeList)){
+            //子节点信息不为空
+            for(${entity}TreeVo treeVo:subNodeList) {
+                TreeSelectVo selectVo = new TreeSelectVo();
+                selectVo.setId(treeVo.getId());
+                selectVo.setLabel(treeVo.getName());
+                childrenVoList.add(selectVo);
+                findChildren(selectVo,treeVo);//递归
+            }
+        }
+        treeSelectVo.setChildren(childrenVoList);
+    }
+
+#end
+}

@@ -84,6 +84,10 @@
             <artifactId>core</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -123,22 +127,53 @@
         <dependency>
             <groupId>org.lionsoul</groupId>
             <artifactId>ip2region</artifactId>
-            <version>1.7.2</version>
         </dependency>
         <dependency>
             <groupId>com.itgacl</groupId>
             <artifactId>fastdfs-spring-boot-starter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.itgacl</groupId>
             <artifactId>jsch-spring-boot-starter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.itgacl</groupId>
             <artifactId>cloudStorage-spring-boot-starter</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!--微信公众号（包括订阅号和服务号）开发包-->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-mp</artifactId>
+        </dependency>
+        <!--微信小程序开发包-->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-miniapp</artifactId>
+        </dependency>
+        <!--微信支付开发包-->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-pay</artifactId>
+        </dependency>
+        <!--Emoji表情转换工具-->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>java-emoji-converter</artifactId>
+        </dependency>
+        <!-- swagger RESTful API 文档 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+        </dependency>
+        <!-- swagger ui  -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+        </dependency>
+        <!-- excel导入导出  -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
         </dependency>
     </dependencies>
 </project>

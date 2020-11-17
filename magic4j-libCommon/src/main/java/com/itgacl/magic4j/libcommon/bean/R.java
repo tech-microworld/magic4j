@@ -1,98 +1,124 @@
 package com.itgacl.magic4j.libcommon.bean;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 
 /**
- * 返回给客户端的响应数据
+ * 响应结果类
  */
-public class R implements Serializable {
+@ApiModel("响应结果")
+public class R<T> implements Serializable {
 
-    private static final long serialVersionUID = -4577255781088498763L;
+	private static final long serialVersionUID = 6775422262797117144L;
 
-    private static final int CODE_OK = 0;
-    private static final int CODE_FAIL = 1;
-    public static final int CODE_UNAUTHORIZED = 2;
+	private static final Integer CODE_SUCCESS = 0;
+	private static final int CODE_FAIL = 1;
+	public static final int CODE_UNAUTHORIZED = 2;//未登录
 
-    private Object data = new Object(); //响应数据
-    private int code = CODE_OK; //响应状态码
-    private String msg = ""; //响应信息
+	private static final String SUCCESS_MSG = "success";
+	private static final String FAIL_MSG = "fail";
 
-    //APIS
-    public static R ok(){
-        return new R().code(CODE_OK);
-    }
+	@ApiModelProperty("响应状态码，0表示成功，其他表示失败")
+	private Integer code;
 
-    public static R ok(Object data){
-        return new R().code(CODE_OK).data(data);
-    }
+	@ApiModelProperty("响应信息")
+	private String msg;
 
-    public static R fail(){
-        return new R().code(CODE_FAIL);
-    }
-    public static R fail(String msg){
-        return new R().code(CODE_FAIL).msg(msg);
-    }
+	@ApiModelProperty("响应数据")
+	private T data;
 
-    public static R fail(int code,String msg){
-        return new R().code(code).msg(msg);
-    }
+	public R(){
+		this.code = CODE_SUCCESS;
+		this.msg = SUCCESS_MSG;
+	}
 
-    public static R fail(Throwable e){
-        return fail().msg(e);
-    }
+	public R(String msg){
+		this.code = CODE_SUCCESS;
+		this.msg = msg;
+	}
 
-    public R msg(Throwable e){
-        this.setMsg(e.toString());
-        return this;
-    }
+	public R(T data){
+		this.code = CODE_SUCCESS;
+		this.msg = SUCCESS_MSG;
+		this.data = data;
+	}
 
-    public R msg(String msg){
-        this.setMsg(msg);
-        return this;
-    }
+	
+	public R(int code, String msg) {
+		this.code = code;
+		this.msg = msg;
+	}
 
-    public R data(Object data){
-        this.setData(data);
-        return this;
-    }
-    public R code(int code){
-       this.setCode(code);
-        return this;
-    }
+	public R(int code, String msg, T data) {
+		this.code = code;
+		this.msg = msg;
+		this.data = data;
+	}
 
-    public R(int code, String msg) {
-        this.code = code;
-        this.msg = msg;
-    }
+	public R(Throwable e) {
+		super();
+		this.msg = e.getMessage();
+		this.code = 1;
+	}
 
+	public Integer getCode() {
+		return this.code;
+	}
 
-    //Constructors
-    public R() {
+	public void setCode(Integer code) {
+		this.code = code;
+	}
 
-    }
+	public String getMsg() {
+		return msg;
+	}
 
-    public int getCode() {
-        return code;
-    }
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
 
-    public void setCode(int code) {
-        this.code = code;
-    }
+	public T getData() {
+		return (T) this.data;
+	}
 
-    //Getter&Setters
-    public String getMsg() {
-        return msg;
-    }
+	public void setData(T data) {
+		this.data = data;
+	}
 
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
+	/**
+	 * 生成一个成功的{@linkplain R}对象
+	 *
+	 * @param data
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> R<T> ok(T data) {
+		return new R<>(data);
+	}
 
-    public Object getData() {
-        return data == null ? new Object() : data;
-    }
+	public static <T> R<T> success(String msg) {
+		return new R<>(msg);
+	}
 
-    public void setData(Object data) {
-        this.data = data;
-    }
+	public static  <T> R<T> ok(){
+		return new R<>();
+	}
+
+	public static <T> R<T> fail(){
+		return new R<>(CODE_FAIL,FAIL_MSG);
+	}
+
+	public static <T> R<T> fail(String msg){
+		return new R<>(CODE_FAIL,msg);
+	}
+
+	public static <T> R<T> fail(Integer code, String msg){
+		return new R<>(code,msg);
+	}
+
+	public static <T> R<T> fail(Throwable e){
+		return new R<>(e);
+	}
 }

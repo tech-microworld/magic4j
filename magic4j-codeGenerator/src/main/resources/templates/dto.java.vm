@@ -1,13 +1,26 @@
 #if(${package.ModuleName})
-package com.itgacl.magic4j.modules.${package.ModuleName}.dto;
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.dto;
 #else
-import com.itgacl.magic4j.dto;
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.dto;
 #end
-import com.itgacl.magic4j.common.base.BaseDTO;
-import lombok.Data;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
+#foreach($pkg in ${table.importPackages})
+import ${pkg};
+#end
+
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.base.BaseDTO;
+import lombok.Data;
+#if(${swagger2})
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+#end
+#if(${cfg.excelCodeGenerate})
+import com.alibaba.excel.annotation.ExcelIgnore;
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.ContentRowHeight;
+import com.alibaba.excel.annotation.write.style.HeadRowHeight;
+#end
 
 /**
  * @Classname ${entity}DTO
@@ -16,14 +29,36 @@ import java.time.LocalDateTime;
  * @Date ${date}
  * @Version 1.0
  */
+#if(${swagger2})
+@ApiModel(value="${entity}对象DTO", description="$!{table.comment}")
+#end
+#if(${cfg.excelCodeGenerate})
+@ColumnWidth(25)
+@HeadRowHeight(20)
+@ContentRowHeight(18)
+#end
 @Data
-public class ${entity}DTO extends BaseDTO implements Serializable{
+public class ${entity}DTO extends BaseDTO implements Serializable {
 
-#foreach($field in ${table.fields})
-    #if(!${field.keyFlag}) ##不生成主键字段，主键字段的定义在父类BaseDTO当中
+    #foreach($field in ${table.fields})
+        #if(!${field.keyFlag}) ##不生成主键字段，主键字段的定义在父类BaseDTO当中
+            #if(!${field.fill}) ##不是自动填充字段
+                #if("$!field.comment" != "")
+                    #if(${swagger2})
+  @ApiModelProperty(value = "${field.comment}")
+                    #else
+    /**
+     * ${field.comment}
+     */
+                    #end
+                    #if(${cfg.excelCodeGenerate})
+    @ExcelProperty("${field.comment}")
+                    #end
+                #end
     private ${field.propertyType} ${field.propertyName};
 
+            #end
+        #end
     #end
-#end
 
 }

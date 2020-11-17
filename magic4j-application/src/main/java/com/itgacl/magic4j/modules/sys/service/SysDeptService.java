@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.itgacl.magic4j.modules.sys.dto.SysDeptDTO;
 import com.itgacl.magic4j.modules.sys.entity.SysDept;
 import com.itgacl.magic4j.modules.sys.entity.ext.SysDeptExt;
-import com.itgacl.magic4j.modules.sys.vo.AreaVo;
 import com.itgacl.magic4j.modules.sys.vo.DeptTreeVo;
 
 import java.util.List;

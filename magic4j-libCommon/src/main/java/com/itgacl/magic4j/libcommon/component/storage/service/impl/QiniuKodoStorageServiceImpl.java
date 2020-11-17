@@ -1,5 +1,6 @@
 package com.itgacl.magic4j.libcommon.component.storage.service.impl;
 
+import com.itgacl.cloud.storage.annotation.EnableKodo;
 import com.itgacl.cloud.storage.service.QiniuKodoStorageService;
 import com.itgacl.magic4j.libcommon.component.storage.bean.UploadResult;
 import com.itgacl.magic4j.libcommon.component.storage.enums.StorageTypeEnum;
@@ -8,8 +9,10 @@ import com.itgacl.magic4j.libcommon.util.GUIDUtil;
 import com.itgacl.magic4j.libcommon.util.MD5Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@ConditionalOnBean(annotation = EnableKodo.class)
 @Service
 public class QiniuKodoStorageServiceImpl extends BaseStorageService {
 
@@ -25,6 +29,11 @@ public class QiniuKodoStorageServiceImpl extends BaseStorageService {
 
     @Autowired
     private QiniuKodoStorageService kodoStorageService;
+
+    @PostConstruct
+    public void  init(){
+        log.debug("----初始化QiniuKodoStorageServiceImpl----");
+    }
 
     /**
      * 上传文件

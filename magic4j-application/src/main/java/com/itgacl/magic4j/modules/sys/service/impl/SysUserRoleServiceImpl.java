@@ -1,8 +1,10 @@
 package com.itgacl.magic4j.modules.sys.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itgacl.magic4j.common.cache.sys.SysCache;
 import com.itgacl.magic4j.common.enums.ErrorCodeEnum;
 import com.itgacl.magic4j.common.util.AssertUtil;
 import com.itgacl.magic4j.common.validator.DataValidator;
@@ -14,7 +16,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * ISysUserRoleService的实现类
@@ -110,6 +114,25 @@ public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUs
     @Override
     public List<SysUserRole> findByUserId(Long sysUserId) {
         return query().eq(SysUserRole.USER_ID,sysUserId).list();
+    }
+
+    @Override
+    public String getUserRoleNames(Long sysUserId) {
+        List<SysUserRole> roleList = query().select(SysUserRole.ROLE_ID).eq(SysUserRole.USER_ID, sysUserId).list();
+        Set<Long> roleIdSet = new HashSet<>();
+        roleList.forEach(item->{
+            roleIdSet.add(item.getRoleId());
+        });
+        String roleIds = "";
+        for (Long id : roleIdSet) {
+            roleIds+=id+",";
+        }
+        String roleNames = "";
+        if(StrUtil.isNotBlank(roleIds)){
+            roleIds=roleIds.substring(0,roleIds.length()-1);
+            roleNames = SysCache.getRoleNames(roleIds);
+        }
+        return roleNames;
     }
 
     /**

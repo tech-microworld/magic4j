@@ -15,6 +15,8 @@ import com.itgacl.magic4j.modules.sys.dto.SysDeptDTO;
 import com.itgacl.magic4j.modules.sys.service.SysRoleDeptService;
 import com.itgacl.magic4j.modules.sys.vo.DeptTreeVo;
 import com.itgacl.magic4j.modules.sys.vo.TreeSelectVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,7 @@ import java.util.*;
  * @author 孤傲苍狼
  * @since 2020-04-02
  */
+@Api(tags = "组织机构管理")
 @Auth(name = "部门管理")
 @RestController
 @RequestMapping("/api/sys/dept")
@@ -42,9 +45,10 @@ public class SysDeptController extends SuperController{
      * @param sysDept
      * @return
      */
+    @ApiOperation("新增")
     @Log(operation="创建",moduleName = "部门管理")
     @PostMapping
-    public R create(@RequestBody @Validated(Constants.Create.class) SysDeptDTO sysDept){
+    public R<Void> create(@RequestBody @Validated(Constants.Create.class) SysDeptDTO sysDept){
         sysDeptService.create(sysDept);
         return R.ok();
     }
@@ -54,9 +58,10 @@ public class SysDeptController extends SuperController{
      * @param sysDept
      * @return
      */
+    @ApiOperation("修改")
     @Log(operation="修改",moduleName = "部门管理")
     @PutMapping
-    public R update(@RequestBody @Validated(Constants.Update.class) SysDeptDTO sysDept){
+    public R<Void> update(@RequestBody @Validated(Constants.Update.class) SysDeptDTO sysDept){
         sysDeptService.update(sysDept);
         return R.ok();
     }
@@ -66,9 +71,10 @@ public class SysDeptController extends SuperController{
      * @param id
      * @return
      */
+    @ApiOperation("根据ID查找")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/{id}")
-    public R get(@PathVariable("id") Long id){
+    public R<SysDeptDTO> get(@PathVariable("id") Long id){
         SysDeptDTO sysDeptDTO = sysDeptService.getSysDeptById(id);
         return R.ok(sysDeptDTO);
     }
@@ -77,9 +83,10 @@ public class SysDeptController extends SuperController{
      * 查询全部
      * @return
      */
+    @ApiOperation("查询全部")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping
-    public R get() {
+    public R<List<SysDeptDTO>> get() {
         List<SysDeptDTO> sysDeptList = sysDeptService.getList(null);
         return R.ok(sysDeptList);
     }
@@ -88,11 +95,11 @@ public class SysDeptController extends SuperController{
      * 根据ID删除
      * @param ids
      * @return
-     * @throws Exception
      */
+    @ApiOperation("根据ID删除")
     @Log(operation="删除",moduleName = "部门管理")
     @DeleteMapping("/{ids}")
-    public R delete(@PathVariable("ids") Long[] ids){
+    public R<Void> delete(@PathVariable("ids") Long[] ids){
         if(ids.length==1){
             sysDeptService.deleteById(ids[0]);
         }else {
@@ -106,9 +113,10 @@ public class SysDeptController extends SuperController{
      * 获取部门树列表
      * @return
      */
+    @ApiOperation("获取组织机构树列表")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/tree")
-    public R getDeptTreeList(SysDeptDTO dept) {
+    public R<List<DeptTreeVo>> getDeptTreeList(SysDeptDTO dept) {
         return R.ok(TreeUtil.buildTree(sysDeptService.getDeptTree(dept)));
     }
 
@@ -116,9 +124,10 @@ public class SysDeptController extends SuperController{
      * 获取部门树
      * @return
      */
+    @ApiOperation("获取组织机构树")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/tree/{id}")
-    public R getDeptTreeList(@PathVariable("id") Long id) {
+    public R<DeptTreeVo> getDeptTreeList(@PathVariable("id") Long id) {
         return R.ok(sysDeptService.getDeptTreeById(id));
     }
 
@@ -136,7 +145,7 @@ public class SysDeptController extends SuperController{
      */
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/treeSelect")
-    public R treeSelect(SysDeptDTO dept) {
+    public R<List<TreeSelectVo>> treeSelect(SysDeptDTO dept) {
         List<DeptTreeVo> deptTree = TreeUtil.buildTree(sysDeptService.getDeptTree(dept));
         List<TreeSelectVo> treeSelectVos = new ArrayList<>();
         deptTree.forEach(deptTreeVo -> {
@@ -148,7 +157,7 @@ public class SysDeptController extends SuperController{
 
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/roleDeptTreeSelect/{roleId}")
-    public R roleDeptTreeSelect(@PathVariable("roleId") Long roleId){
+    public R<Map<Object, Object>> roleDeptTreeSelect(@PathVariable("roleId") Long roleId){
         List<SysRoleDept> roleDeptList = sysRoleDeptService.query().select(SysRoleDept.DEPT_ID).eq(SysRoleDept.ROLE_ID, roleId).list();
         List<Long> roleDeptIds = new ArrayList<>();
         roleDeptList.forEach(item-> roleDeptIds.add(item.getDeptId()));

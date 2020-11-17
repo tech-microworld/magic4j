@@ -34,4 +34,6 @@ public interface SysUserRoleService extends IService<SysUserRole> {
     void bindRole(Long sysUserId, List<Long> roleIds);
 
     List<SysUserRole> findByUserId(Long sysUserId);
+
+    String getUserRoleNames(Long sysUserId);
 }

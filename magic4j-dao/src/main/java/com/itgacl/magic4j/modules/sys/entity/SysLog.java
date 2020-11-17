@@ -1,5 +1,6 @@
 package com.itgacl.magic4j.modules.sys.entity;
 
+import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -16,8 +17,8 @@ import lombok.experimental.Accessors;
  * 系统日志
  * </p>
  *
- * @author 孤傲苍狼
- * @since 2020-04-03
+ * @author Created by xudp (alias:孤傲苍狼) 290603672@qq.com
+ * @since 2020-07-05
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -99,6 +100,16 @@ public class SysLog implements Serializable {
     private String clientOperationLocation;
 
     /**
+     * 经度
+     */
+    private BigDecimal lng;
+
+    /**
+     * 纬度
+     */
+    private BigDecimal lat;
+
+    /**
      * 处理请求的服务器IP
      */
     private String handleServerIp;
@@ -157,6 +168,10 @@ public class SysLog implements Serializable {
     public static final String CLIENT_OPERATION_SYSTEM = "client_operation_system";
 
     public static final String CLIENT_OPERATION_LOCATION = "client_operation_location";
+
+    public static final String LNG = "lng";
+
+    public static final String LAT = "lat";
 
     public static final String HANDLE_SERVER_IP = "handle_server_ip";
 

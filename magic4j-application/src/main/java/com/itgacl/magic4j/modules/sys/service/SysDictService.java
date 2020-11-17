@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.itgacl.magic4j.modules.sys.dto.SysDictDTO;
 import com.itgacl.magic4j.modules.sys.entity.SysDict;
+import com.itgacl.magic4j.modules.sys.excel.DictExcel;
+import com.itgacl.magic4j.modules.sys.excel.UserExcel;
 
 import java.util.List;
 
@@ -26,5 +28,7 @@ public interface SysDictService extends IService<SysDict> {
 
     void deleteAll();
 
-    List<SysDictDTO> getList(QueryWrapper queryWrapper);
+    List<SysDictDTO> getList(QueryWrapper<SysDict> queryWrapper);
+
+    void importDict(List<DictExcel> data, Boolean isCovered);
 }

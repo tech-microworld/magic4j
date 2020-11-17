@@ -3,6 +3,8 @@ package com.itgacl.magic4j.modules.sys.mapper;
 import com.baomidou.mybatisplus.annotation.SqlParser;
 import com.itgacl.magic4j.modules.sys.entity.SysLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.itgacl.magic4j.modules.sys.vo.CountStatisticVo;
+import com.itgacl.magic4j.modules.sys.vo.LoginStatisticVo;
 
 import java.util.List;
 
@@ -30,4 +32,12 @@ public interface SysLogMapper extends BaseMapper<SysLog> {
     @SqlParser(filter = true)//不走租户的配置方式
     @Override
     int insert(SysLog entity);
+
+    List<LoginStatisticVo> getLoginStatistics();
+
+    /**
+     * 统计7天内的登录情况
+     * @return
+     */
+    List<CountStatisticVo> loginCountStatistic();
 }

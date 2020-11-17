@@ -1,9 +1,13 @@
 package com.itgacl.magic4j.modules.sys.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.itgacl.magic4j.common.bean.PageData;
 import com.itgacl.magic4j.modules.sys.dto.SysPostDTO;
 import com.itgacl.magic4j.modules.sys.entity.SysPost;
+import com.itgacl.magic4j.modules.sys.excel.PostExcel;
+import com.itgacl.magic4j.modules.sys.vo.SysPostVo;
 
 import java.util.List;
 
@@ -28,5 +32,9 @@ public interface SysPostService extends IService<SysPost> {
 
     void deleteAll();
 
-    List<SysPostDTO> getList(QueryWrapper queryWrapper);
+    List<SysPostDTO> getList(QueryWrapper<SysPost> queryWrapper);
+
+    PageData<SysPostVo> pageList(Page<SysPost> page,QueryWrapper<SysPost> queryWrapper);
+
+    void importPost(List<PostExcel> data, Boolean isCovered);
 }

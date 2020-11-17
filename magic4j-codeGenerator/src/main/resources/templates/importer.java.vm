@@ -1,0 +1,40 @@
+#if(${package.ModuleName})
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.excel;
+#else
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.excel;
+#end
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.libcommon.excel.ExcelImporter;
+import ${package.Service}.${table.serviceName};
+import lombok.RequiredArgsConstructor;
+
+#if(${package.ModuleName})
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.${package.ModuleName}.dto.${entity}DTO;
+#else
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.dto.${entity}DTO;
+#end
+import java.util.List;
+
+/**
+ * ${entity}数据导入器
+ */
+@RequiredArgsConstructor
+public class ${entity}Importer implements ExcelImporter<${entity}DTO> {
+
+    private final ${table.serviceName} ${table.entityPath}Service;
+    private final Boolean isCovered;
+#if(${cfg.isTreeTable})
+    private final Long parentId;
+#end
+
+    @Override
+    public void save(List<${entity}DTO> data) {
+#if(${cfg.isTreeTable})
+        if(parentId!=null){
+            data.forEach(item->{
+                item.setParentId(parentId);
+            });
+        }
+#end
+        ${table.entityPath}Service.importData(data, isCovered);
+    }
+}

@@ -1,5 +1,6 @@
 package com.itgacl.magic4j.libcommon.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import org.apache.commons.beanutils.BeanUtils;
@@ -17,9 +18,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * Created by 94496 on 2016/8/13.
- */
 public class ConversionUtil {
 
 
@@ -721,13 +719,56 @@ public class ConversionUtil {
         return JSONObject.parseObject(JSONObject.toJSONString(object), Feature.OrderedField);
     }
 
-
-
-    public static void main(String[] str ){
-
-
-        System.out.println(isContain("a","a","b"));
-        System.out.println(isNotContain("a","a","b"));
+    /**
+     * 转换为Long数组<br>
+     *
+     * @param str 被转换的值
+     * @return 结果
+     */
+    public static Long[] toLongArray(String str) {
+        return toLongArray(",", str);
     }
+
+    /**
+     * 转换为Long数组<br>
+     *
+     * @param split 分隔符
+     * @param str   被转换的值
+     * @return 结果
+     */
+    public static Long[] toLongArray(String split, String str) {
+        if (StrUtil.isEmpty(str)) {
+            return new Long[]{};
+        }
+        String[] arr = str.split(split);
+        final Long[] longs = new Long[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            final Long v = toLong(arr[i]);
+            longs[i] = v;
+        }
+        return longs;
+    }
+
+    /**
+     * 转换为Long集合<br>
+     *
+     * @param str 结果被转换的值
+     * @return 结果
+     */
+    public static List<Long> toLongList(String str) {
+        return Arrays.asList(toLongArray(str));
+    }
+
+    /**
+     * 转换为Long集合<br>
+     *
+     * @param split 分隔符
+     * @param str   被转换的值
+     * @return 结果
+     */
+    public static List<Long> toLongList(String split, String str) {
+        return Arrays.asList(toLongArray(split, str));
+    }
+
 
 }

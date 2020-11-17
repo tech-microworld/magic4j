@@ -171,7 +171,7 @@ public abstract class BaseStorageService implements StorageService {
             inputStream.close();
             bos.close();
         } catch (Exception e) {
-            log.error("下载文件出现错误，错误信息是：", e.getMessage());
+            log.error("下载文件出现错误，错误信息是：{}", e.getMessage());
         } finally {
             //关闭流
             if (bos != null) {

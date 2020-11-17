@@ -80,3 +80,16 @@ magic4j:
     enabled: ${JWT_ENABLED:true} #是否启用jwt
   #允许删除全部数据的表
   allowDeleteAllTables: sys_log,schedule_job_log
+  #swagger配置
+  swagger:
+    enable: ${SWAGGER_ENABLE:true} #启用/禁用配置(true,启用，false禁用)
+    title: ${SWAGGER_TITLE:magic4j REST API}
+    description: ${SWAGGER_DESCRIPTION:<a href='http://file.itgacl.com/magic4j-docs' target='_bank'>magic4j接口文档</a>，严格遵循RESTFUL API设计规范。}
+    contact:
+      name: ${SWAGGER_CONTACT_NAME:孤傲苍狼}
+      url: ${SWAGGER_CONTACT_URL:http://blog.itgacl.com}
+      email: ${SWAGGER_CONTACT_EMAIL:290603672@qq.com}
+    license:
+      title: ${SWAGGER_LICENSE_TITLE:MIT License}
+      url: ${SWAGGER_LICENSE_URL:https://gitee.com/gacl/magic4j/blob/master/LICENSE}
+    version: ${SWAGGER_VERSION:1.0}

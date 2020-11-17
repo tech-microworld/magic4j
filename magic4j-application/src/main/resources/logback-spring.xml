@@ -99,6 +99,8 @@
     <logger name="org.quartz" level="WARN" />
     <logger name="com.zaxxer.hikari" level="WARN" />
     <logger name="com.baomidou.mybatisplus" level="WARN" />
+    <logger name="org.apache.http" level="WARN" />
+    <logger name="springfox.documentation" level="WARN" />
 
     <root level="${LOG_Level}">
         <appender-ref ref="CONSOLE-LOG" />

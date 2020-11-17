@@ -3,13 +3,12 @@ package com.itgacl.magic4j.modules.sys.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
-import com.itgacl.magic4j.common.bizCache.BizCacheService;
+import com.itgacl.magic4j.common.cache.biz.BizCacheService;
 import com.itgacl.magic4j.common.enums.ErrorCodeEnum;
 import com.itgacl.magic4j.common.util.AssertUtil;
 import com.itgacl.magic4j.common.validator.DataValidator;
@@ -465,7 +464,7 @@ public class SysResourceServiceImpl extends ServiceImpl<SysResourceMapper, SysRe
             VueRouterVo router = new VueRouterVo();
             router.setName(menu.getName());
             router.setPath(getRouterPath(menu));//Vue前端路由需要使用到path属性，DB没有该属性，只能手动构建一个
-            router.setComponent(StringUtils.isEmpty(menu.getUrl()) ? "Layout" : menu.getUrl());
+            router.setComponent(StringUtils.isBlank(menu.getUrl()) ? "Layout" : menu.getUrl());
             router.setMeta(new VueRouterVo.MetaVo(menu.getName(), menu.getIcon()));
             List<SysResourceVo> cMenus = menu.getChildren();
             if (CollectionUtil.isNotEmpty(cMenus)) {

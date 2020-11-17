@@ -1,15 +1,17 @@
 package com.itgacl.magic4j.libcommon.component.storage.service.impl;
 
 import com.itgacl.fastdfs.FastdfsService;
+import com.itgacl.fastdfs.annotation.EnableFastDFS;
 import com.itgacl.fastdfs.bean.FastDFSUploadResult;
 import com.itgacl.magic4j.libcommon.component.storage.bean.UploadResult;
 import com.itgacl.magic4j.libcommon.component.storage.enums.StorageTypeEnum;
-import com.itgacl.magic4j.libcommon.constant.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -21,6 +23,7 @@ import java.util.Map;
  * 基于Fastdfs上传实现
  */
 @Slf4j
+@ConditionalOnBean(annotation = EnableFastDFS.class)
 @Service
 public class FastdfsStorageServiceImpl extends BaseStorageService {
 
@@ -28,6 +31,11 @@ public class FastdfsStorageServiceImpl extends BaseStorageService {
 
     @Autowired
     private FastdfsService fastdfsService;
+
+    @PostConstruct
+    public void  init(){
+        log.debug("----初始化FastdfsStorageServiceImpl----");
+    }
 
     /**
      * 上传文件

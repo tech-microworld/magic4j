@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.itgacl.magic4j.modules.sys.dto.SysUserDTO;
 import com.itgacl.magic4j.modules.sys.dto.TokenDTO;
 import com.itgacl.magic4j.modules.sys.entity.SysUser;
+import com.itgacl.magic4j.modules.sys.excel.UserExcel;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -63,4 +64,11 @@ public interface SysUserService extends IService<SysUser> {
     List<SysUser> getTenantUserList(QueryWrapper<SysUser> queryWrapper);
 
     IPage<SysUser> pageList(IPage<SysUser> page, QueryWrapper<SysUser> queryWrapper);
+
+    /**
+     * 导入用户
+     * @param data
+     * @param isCovered
+     */
+    void importUser(List<UserExcel> data, Boolean isCovered);
 }

@@ -4,14 +4,17 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itgacl.magic4j.common.base.SuperController;
+import com.itgacl.magic4j.common.bean.PageData;
+import com.itgacl.magic4j.common.bean.PageParam;
 import com.itgacl.magic4j.libcommon.annotation.Auth;
 import com.itgacl.magic4j.libcommon.bean.R;
 import com.itgacl.magic4j.modules.sys.dto.SysLogDTO;
 import com.itgacl.magic4j.modules.sys.entity.SysLog;
 import com.itgacl.magic4j.modules.sys.service.SysLogService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,7 @@ import java.util.*;
  * @author 孤傲苍狼
  * @since 2020-03-29
  */
+@Api(tags = "系统日志")
 @Auth(name = "日志管理")
 @RestController
 @RequestMapping(value = "/api/sys/log")
@@ -36,9 +40,10 @@ public class SysLogController extends SuperController {
      * @param id
      * @return
      */
+    @ApiOperation("根据ID查找")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/{id}")
-    public R get(@PathVariable("id") Long id){
+    public R<SysLogDTO> get(@PathVariable("id") Long id){
         SysLogDTO sysLogDTO = sysLogService.getSysLogById(id);
         return R.ok(sysLogDTO);
     }
@@ -47,9 +52,10 @@ public class SysLogController extends SuperController {
      * 查询全部
      * @return
      */
+    @ApiOperation("查询全部")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping
-    public R get() {
+    public R<List<SysLogDTO>> get() {
         List<SysLogDTO> sysLogList = sysLogService.getList(null);
         return R.ok(sysLogList);
     }
@@ -59,8 +65,9 @@ public class SysLogController extends SuperController {
      * @param ids
      * @return
      */
+    @ApiOperation("根据ID批量删除")
     @DeleteMapping("/{ids}")
-    public R delete(@PathVariable("ids") Long[] ids){
+    public R<Void> delete(@PathVariable("ids") Long[] ids){
         if(ids.length==1){
             sysLogService.deleteById(ids[0]);
         }else {
@@ -75,10 +82,10 @@ public class SysLogController extends SuperController {
      * 删除全部
      * @return
      */
+    @ApiOperation("删除全部")
     @DeleteMapping("/clean")
-    public R clean(SysLogDTO sysDictDTO){
-        QueryWrapper<SysLog> queryWrapper = buildQueryWrapper(sysDictDTO);
-        sysLogService.delete(queryWrapper);
+    public R<Void> clean(){
+        sysLogService.delete(null);
         return R.ok();
     }
 
@@ -86,27 +93,25 @@ public class SysLogController extends SuperController {
      * 分页查询日志
      * @return
      */
+    @ApiOperation("分页查询")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping(value = "/list")
-    public R pageList(SysLogDTO sysDictDTO){
+    public R<PageData<SysLog>> pageList(SysLogDTO sysDictDTO, PageParam pageParam){
         //构建查询条件
         QueryWrapper<SysLog> queryWrapper = buildQueryWrapper(sysDictDTO);
-        Page<SysLog> page = getPage();//获取mybatisPlus分页对象
+        Page<SysLog> page = getPage(pageParam);//获取mybatisPlus分页对象
         IPage<SysLog> pageInfo = sysLogService.page(page,queryWrapper);//mybatisPlus分页查询
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("total", pageInfo.getTotal());//总记录数
-        dataMap.put("rows", pageInfo.getRecords());//列表数据
-        dataMap.put("pages", pageInfo.getPages());//总页数
-        return R.ok(dataMap);
+        return R.ok(PageData.build(pageInfo));
     }
 
     /**
      * 获取模块名称
      * @return
      */
+    @ApiOperation("获取模块名称")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/module/list")
-    public R getModuleList(){
+    public R<List<Map<String,String>>> getModuleList(){
         List<String> moduleNameList = sysLogService.getModuleNameList();
         List<Map<String,String>> mapList = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(moduleNameList)){

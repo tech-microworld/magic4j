@@ -2,6 +2,7 @@ package com.itgacl.magic4j.modules.sys.dto;
 
 import com.itgacl.magic4j.common.base.BaseDTO;
 import com.itgacl.magic4j.libcommon.constant.Constants;
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -10,6 +11,7 @@ import java.io.Serializable;
 /**
  * 数据传输对象（DTO)(Data Transfer Object)
  */
+@ApiModel("系统资源DTO")
 @Data
 public class SysResourceDTO extends BaseDTO implements Serializable{
 

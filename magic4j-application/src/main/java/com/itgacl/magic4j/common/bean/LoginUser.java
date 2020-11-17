@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -49,6 +50,16 @@ public class LoginUser implements Serializable {
      * 登录地点
      */
     private String loginLocation;
+
+    /**
+     * 经度
+     */
+    private BigDecimal lng;
+
+    /**
+     * 纬度
+     */
+    private BigDecimal lat;
 
     /**
      * 浏览器类型

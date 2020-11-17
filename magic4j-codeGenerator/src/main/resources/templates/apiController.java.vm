@@ -1,0 +1,42 @@
+#if(${package.ModuleName})
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.modules.api.controller;
+#else
+package ${cfg.parentGroupId}.${cfg.parentArtifactId}.api.controller;
+#end
+
+import ${cfg.parentGroupId}.${cfg.parentArtifactId}.common.base.AppBaseController;
+
+import ${package.Service}.${table.serviceName};
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+import java.util.*;
+
+
+#set($entityPath=$!{table.entityPath})
+#if($entityPath.indexOf("${package.ModuleName}")!=-1)
+    #set($entityPath=$entityPath.substring(${package.ModuleName.length()}))
+    #set($entityPath=$entityPath.substring(0,1).toLowerCase()+$entityPath.substring(1))
+#end
+/**
+ * @Classname ${table.controllerName}
+ * @Description $!{table.comment} Controller
+ * @Author ${author}
+ * @Date ${date}
+ * @Version 1.0
+ */
+@Api(tags = "${entity}管理")
+@RestController
+@RequestMapping("/app/api#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else$entityPath#end")
+public class ${entity}ApiController extends AppBaseController{
+
+    @Autowired
+    private ${table.serviceName} ${table.entityPath}Service;
+}

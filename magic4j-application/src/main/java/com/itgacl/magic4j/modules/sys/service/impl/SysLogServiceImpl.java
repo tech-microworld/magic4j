@@ -10,6 +10,9 @@ import com.itgacl.magic4j.common.validator.DataValidator;
 import com.itgacl.magic4j.modules.sys.entity.SysLog;
 import com.itgacl.magic4j.modules.sys.mapper.SysLogMapper;
 import com.itgacl.magic4j.modules.sys.service.SysLogService;
+import com.itgacl.magic4j.modules.sys.vo.CountStatisticVo;
+import com.itgacl.magic4j.modules.sys.vo.DashboardLineChartVo;
+import com.itgacl.magic4j.modules.sys.vo.LoginStatisticVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,6 +93,31 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
     @Override
     public List<String> getModuleNameList() {
         return sysLogMapper.getModuleNameList();
+    }
+
+    @Override
+    public List<LoginStatisticVo> getLoginStatistics() {
+        return sysLogMapper.getLoginStatistics();
+    }
+
+    @Override
+    public List<CountStatisticVo> loginCountStatistic() {
+        return sysLogMapper.loginCountStatistic();
+    }
+
+    @Override
+    public DashboardLineChartVo loginStatistic() {
+        List<CountStatisticVo> userAccessCountList = loginCountStatistic();
+        DashboardLineChartVo dashboardLineChartVo = new DashboardLineChartVo();
+        List<String> dateRangeList = new ArrayList<>();
+        List<Integer> userCountList = new ArrayList<>();
+        userAccessCountList.forEach(item->{
+            dateRangeList.add(item.getDays());
+            userCountList.add(item.getCount());
+        });
+        dashboardLineChartVo.setDateRangeList(dateRangeList);
+        dashboardLineChartVo.setUserAccessCountList(userCountList);
+        return dashboardLineChartVo;
     }
 
     /**

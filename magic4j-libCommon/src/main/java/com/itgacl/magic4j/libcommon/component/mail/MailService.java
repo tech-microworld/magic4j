@@ -1,5 +1,7 @@
 package com.itgacl.magic4j.libcommon.component.mail;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.mail.MessagingException;
 
 public interface MailService {
@@ -36,6 +38,10 @@ public interface MailService {
 
     void sendAttachmentsMail(String to, String subject, String content, String filePath, String... cc) throws MessagingException;
 
+    void sendAttachmentsMail(String to, String subject, String content, MultipartFile file) throws MessagingException;
+
+    void sendAttachmentsMail(String to, String subject, String content, MultipartFile file, String... cc) throws MessagingException;
+
     /**
      * 发送正文中有静态资源的邮件
      * @param to
@@ -48,4 +54,6 @@ public interface MailService {
     void sendResourceMail(String to, String subject, String content, String rscPath, String rscId) throws MessagingException;
 
     void sendResourceMail(String to, String subject, String content, String rscPath, String rscId, String... cc) throws MessagingException;
+
+
 }

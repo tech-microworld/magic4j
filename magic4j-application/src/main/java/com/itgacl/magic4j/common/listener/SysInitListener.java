@@ -40,8 +40,8 @@ public class SysInitListener implements CommandLineRunner {
     private SysDictService sysDictService;
 
     @Override
-    public void run(String... strings) throws Exception {
-        sysUserService.initSuperAdminUser();
+    public void run(String... strings) {
+        //sysUserService.initSuperAdminUser();
         cacheDictData();//缓存字典数据
         List<AuthResourceScan.AuthRes> authResList = authResourceScan.scan();//扫描系统的权限控制资源
         sysResourceService.saveOrUpdate(authResList);

@@ -56,7 +56,7 @@ public class AuthResourceScan {
                 Auth methodAnnotation = mappingInfoValue.getMethodAnnotation(Auth.class);
                 if(methodAnnotation != null){//如果类和方法同时标注了Auth注解，则以方法上的Auth注解为主
                     if(!methodAnnotation.isAuth()){
-                        log.debug(mappingInfoValue.getMethod().getName()+"有Auth注解，isAuth属性为false");
+                        //log.debug(mappingInfoValue.getMethod().getName()+"有Auth注解，isAuth属性为false");
                         continue;
                     }
                     auth = methodAnnotation;

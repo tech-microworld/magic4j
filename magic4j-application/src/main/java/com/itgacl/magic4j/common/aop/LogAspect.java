@@ -7,9 +7,7 @@ import com.itgacl.magic4j.libcommon.ThreadManager;
 import com.itgacl.magic4j.libcommon.annotation.Log;
 import com.itgacl.magic4j.libcommon.bean.R;
 import com.itgacl.magic4j.libcommon.component.cache.CacheService;
-import com.itgacl.magic4j.libcommon.constant.Constants;
 import com.itgacl.magic4j.libcommon.util.IpUtil;
-import com.itgacl.magic4j.libcommon.util.SpringContextUtils;
 import com.itgacl.magic4j.modules.sys.entity.SysLog;
 import com.itgacl.magic4j.modules.sys.service.SysLogService;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -101,6 +98,8 @@ public class LogAspect {
                     sysLog.setClientBrowser(finalLoginUser.getBrowser());//发起请求的客户端浏览器
                     sysLog.setClientOperationSystem(finalLoginUser.getOs());//发起请求的客户端操作系统
                     sysLog.setClientOperationLocation(finalLoginUser.getLoginLocation());//发起请求的客户端的位置
+                    sysLog.setLat(finalLoginUser.getLat());//纬度
+                    sysLog.setLng(finalLoginUser.getLng());//经度
                 }
                 sysLog.setHandleServerIp(IpUtil.getLocalIP());//处理用户请求的服务器IP地址
                 sysLog.setExecuteTime(time);//执行时长(毫秒)

@@ -1,14 +1,18 @@
 package com.itgacl.magic4j.modules.sys.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.pagehelper.PageInfo;
 import com.itgacl.magic4j.common.base.SuperController;
+import com.itgacl.magic4j.common.bean.PageData;
 import com.itgacl.magic4j.common.bean.LoginUser;
-import com.itgacl.magic4j.common.bizCache.BizCacheConstants;
+import com.itgacl.magic4j.common.bean.PageParam;
+import com.itgacl.magic4j.common.cache.biz.BizCacheConstants;
+import com.itgacl.magic4j.common.cache.sys.SysCache;
 import com.itgacl.magic4j.libcommon.annotation.Auth;
 import com.itgacl.magic4j.libcommon.annotation.Encrypt;
 import com.itgacl.magic4j.libcommon.annotation.Log;
@@ -16,24 +20,33 @@ import com.itgacl.magic4j.libcommon.bean.R;
 import com.itgacl.magic4j.libcommon.component.cache.annotation.Cache;
 import com.itgacl.magic4j.libcommon.component.cache.annotation.CacheClear;
 import com.itgacl.magic4j.libcommon.constant.Constants;
+import com.itgacl.magic4j.libcommon.excel.ExcelUtil;
+import com.itgacl.magic4j.libcommon.util.DateUtils;
 import com.itgacl.magic4j.libcommon.util.Maps;
 import com.itgacl.magic4j.modules.sys.dto.SysPostDTO;
 import com.itgacl.magic4j.modules.sys.dto.SysRoleDTO;
 import com.itgacl.magic4j.modules.sys.dto.SysUserDTO;
 import com.itgacl.magic4j.modules.sys.entity.*;
+import com.itgacl.magic4j.modules.sys.excel.UserExcel;
+import com.itgacl.magic4j.modules.sys.excel.UserImporter;
 import com.itgacl.magic4j.modules.sys.service.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- *
- */
 @Slf4j
+@Api(tags = "系统用户管理")
 @Auth(name = "系统用户")
 @RestController
 @RequestMapping("/api/sys/user")
@@ -59,10 +72,11 @@ public class SysUserController extends SuperController {
      * @param sysUser
      * @return
      */
+    @ApiOperation("创建")
     @Encrypt(Encrypt.Type.AES) //数据使用AES加密后传输
     @Log(operation="创建用户",remark = "创建系统用户",moduleName = "系统用户")
     @PostMapping
-    public R create(@RequestBody @Validated(Constants.Create.class) SysUserDTO sysUser){
+    public R<Void> create(@RequestBody @Validated(Constants.Create.class) SysUserDTO sysUser){
         sysUserService.create(sysUser);
         return R.ok();
     }
@@ -72,10 +86,11 @@ public class SysUserController extends SuperController {
      * @param sysUser
      * @return
      */
+    @ApiOperation("修改")
     @Log(operation="更新用户",remark = "更新系统用户",moduleName = "系统用户")
     @CacheClear(key = "'" + BizCacheConstants.SYS.USER_ID + "' + #sysUser.id") //更新完成后清除缓存
     @PutMapping
-    public R update(@RequestBody @Validated(Constants.Update.class) SysUserDTO sysUser){
+    public R<Void> update(@RequestBody @Validated(Constants.Update.class) SysUserDTO sysUser){
         sysUserService.update(sysUser);
         return R.ok();
     }
@@ -85,21 +100,23 @@ public class SysUserController extends SuperController {
      * @param id
      * @return
      */
+    @ApiOperation("根据ID查找")
     @Auth(isAuth = false)//不进行权限控制
     @Cache(key = "'" + BizCacheConstants.SYS.USER_ID + "' + #id")//根据用户ID缓存
     @GetMapping("/{id}")
-    public R get(@PathVariable("id") Long id){
+    public R<SysUserDTO> get(@PathVariable("id") Long id){
         SysUserDTO userDTO = sysUserService.getSysUserById(id);
         return R.ok(userDTO);
     }
 
     /**
-     * 登录用户个人信息
+     * 获取登录用户个人信息
      * @return
      */
+    @ApiOperation("获取登录用户个人信息")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/profile")
-    public R profile(){
+    public R<SysUserDTO> profile(){
         LoginUser loginUser = getCurrLoginUser();
         SysUserDTO userDTO = sysUserService.getSysUserById(loginUser.getId());
         if(ObjectUtil.isNotEmpty(loginUser.getDeptId())){
@@ -115,26 +132,29 @@ public class SysUserController extends SuperController {
      * @param newPassword
      * @return
      */
+    @ApiOperation("修改密码")
     @Auth(isAuth = false)//不进行权限控制
     @Log(operation="修改密码",remark = "修改用户密码",moduleName = "系统用户")
     @Encrypt(Encrypt.Type.RSA)
     @PutMapping("/updatePwd")
-    public R updatePwd(String oldPassword, String newPassword){
+    public R<Void> updatePwd(String oldPassword, String newPassword){
         sysUserService.updatePwd(getLoginUserId(),oldPassword,newPassword);
         return R.ok();
     }
 
+    @ApiOperation("重置密码")
     @Log(operation="重置密码",remark = "重置用户密码",moduleName = "系统用户")
     @Encrypt(Encrypt.Type.RSA)
     @PutMapping("/resetPwd")
-    public R resetPwd(Long userId,String password) {
+    public R<Void> resetPwd(Long userId,String password) {
         sysUserService.resetPwd(userId,password);
         return R.ok();
     }
 
+    @ApiOperation("禁用用户")
     @Log(operation="禁用用户",remark = "根据用户id禁用用户",moduleName = "系统用户")
     @PutMapping("/forbid/{ids}")
-    public R forbid(@PathVariable("ids") Long[] ids){
+    public R<Void> forbid(@PathVariable("ids") Long[] ids){
         List<Long> idList = Arrays.asList(ids);
         if(idList.contains(getLoginUserId())){
             return R.fail("当前登录用户不能禁用");
@@ -147,9 +167,10 @@ public class SysUserController extends SuperController {
         return R.ok();
     }
 
+    @ApiOperation("恢复用户")
     @Log(operation="启用用户",remark = "根据用户id启用用户",moduleName = "系统用户")
     @PutMapping("/enable/{ids}")
-    public R enable(@PathVariable("ids") Long[] ids){
+    public R<Void> enable(@PathVariable("ids") Long[] ids){
         sysUserService.enableUser(Arrays.asList(ids));
         return R.ok();
     }
@@ -158,9 +179,10 @@ public class SysUserController extends SuperController {
      * 查询全部
      * @return
      */
+    @ApiOperation("查询全部用户")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping
-    public R get() {
+    public R<List<SysUserDTO>> get() {
         List<SysUserDTO> sysUserList = sysUserService.getList(null);
         return R.ok(sysUserList);
     }
@@ -170,9 +192,10 @@ public class SysUserController extends SuperController {
      * @param ids
      * @return
      */
+    @ApiOperation("根据ID批量删除")
     @Log(operation="删除用户",remark = "根据用户ID删除系统用户",moduleName = "系统用户")
     @DeleteMapping("/{ids}")
-    public R delete(@PathVariable("ids") Long[] ids){
+    public R<Void> delete(@PathVariable("ids") Long[] ids){
         List<Long> idList = Arrays.asList(ids);
         if(idList.contains(getLoginUserId())){
             return R.fail("当前登录用户不能删除");
@@ -185,9 +208,10 @@ public class SysUserController extends SuperController {
         return R.ok();
     }
 
+    @ApiOperation("获取在线用户")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/online")
-    public R online(){
+    public R<List<LoginUser>> online(){
         List<LoginUser> loginUserList = new ArrayList<>();
         List<Object> cacheKeys = cacheService.getCacheKeys(Constants.LOGIN_USER.TOKEN_PREFIX);
         cacheKeys.forEach(key->{
@@ -203,29 +227,79 @@ public class SysUserController extends SuperController {
      * 分页查询
      * @return
      */
+    @ApiOperation("分页查询用户")
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping(value = "/list")
-    public R pageList(SysUserDTO sysUserDTO){
+    public R<PageData<SysUser>> pageList(SysUserDTO sysUserDTO, PageParam pageParam){
         //构建查询条件
         QueryWrapper<SysUser> queryWrapper = buildQueryWrapper(sysUserDTO);
         if(!isSuperAdminLogin()){//如果不是超级管理员登录，只能看到自己创建的
             queryWrapper.eq(SysUser.CREATE_USER,getLoginUserId());
         }
-        Page<SysUser> page = getPage();//获取mybatisPlus分页对象
+        Page<SysUser> page = getPage(pageParam);//获取mybatisPlus分页对象
         IPage<SysUser> pageInfo = sysUserService.page(page,queryWrapper);//mybatisPlus分页查询
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("total", pageInfo.getTotal());//总记录数
-        dataMap.put("rows", pageInfo.getRecords());//列表数据
-        dataMap.put("pages", pageInfo.getPages());//总页数
-        return R.ok(dataMap);
+        return R.ok(PageData.build(pageInfo));
+    }
+
+    /**
+     * 导入用户
+     */
+    @ApiOperation("导入用户")
+    @ApiImplicitParam(name = "isCovered",value = "是否覆盖，true:覆盖,false:不覆盖")
+    @PostMapping("/import")
+    public R<Void> importUser(@ApiParam(value = "Excel文件", required = true) @RequestParam(value = "file") MultipartFile file, Boolean isCovered) {
+        UserImporter userImporter = new UserImporter(sysUserService, isCovered);
+        ExcelUtil.save(file, userImporter, UserExcel.class);
+        return R.success("导入成功");
+    }
+
+    /**
+     * 导出用户
+     */
+    @ApiOperation("导出用户")
+    @GetMapping("/export")
+    public void export(SysUserDTO sysUserDTO, HttpServletResponse response) {
+        //构建查询条件
+        QueryWrapper<SysUser> queryWrapper = buildQueryWrapper(sysUserDTO);
+        List<SysUser> sysUserList = sysUserService.list(queryWrapper);
+        List<UserExcel> userExcelList = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(sysUserList)){
+            for (SysUser sysUser : sysUserList) {
+                UserExcel userExcel = new UserExcel();
+                BeanUtils.copyProperties(sysUser,userExcel);
+                userExcel.setRoleName(sysUserRoleService.getUserRoleNames(sysUser.getId()));
+                userExcel.setDeptName(SysCache.getDeptName(sysUser.getDeptId()));
+                userExcel.setPostName(sysUserPostService.getUserPostNames(sysUser.getId()));
+                userExcelList.add(userExcel);
+            }
+        }
+        if(ArrayUtil.isNotEmpty(sysUserDTO.getExportColumnNames())){
+            //导出Excel，指定需要导出的列
+            ExcelUtil.export(response, "用户数据" + DateUtils.getCurrentTime(), "用户数据表", userExcelList, UserExcel.class,Arrays.asList(sysUserDTO.getExportColumnNames()));
+        }else {
+            //导出Excel，导出全部列
+            ExcelUtil.export(response, "用户数据" + DateUtils.getCurrentTime(), "用户数据表", userExcelList, UserExcel.class);
+        }
+
+    }
+
+    /**
+     * 获取用户导入模板
+     */
+    @ApiOperation("获取用户导入模板")
+    @GetMapping("/import/template")
+    public void getImportTemplate(HttpServletResponse response) {
+        List<UserExcel> list = new ArrayList<>();
+        ExcelUtil.export(response, "用户数据导入模板", "用户数据表", list, UserExcel.class);
     }
 
     /**
      * 获取租户用户列表
      * @return
      */
+    @ApiOperation("分页查询租户用户列表")
     @GetMapping(value = "/tenant/user/list")
-    public R tenantUserList(SysUserDTO sysUserDTO) {
+    public R<PageData<SysUser>> tenantUserList(SysUserDTO sysUserDTO,PageParam pageParam) {
         QueryWrapper<SysUser> queryWrapper = buildQueryWrapper(sysUserDTO);
         queryWrapper.eq(SysUser.DELETE_FLAG,Constants.DELETE_FLAG.NO);
         if(!isSuperAdminLogin()){//如果不是超级管理员登录，只能看到自己创建的
@@ -234,15 +308,9 @@ public class SysUserController extends SuperController {
         if(!queryWrapper.getParamNameValuePairs().containsKey(SysUser.TENANT_ID)){
             queryWrapper.ne(SysUser.TENANT_ID,Constants.SUPER_TENANT_ID);//过滤系统默认租户用户
         }
-        Page<SysUser> page = getPage();//获取mybatisPlus分页对象
+        Page<SysUser> page = getPage(pageParam);//获取mybatisPlus分页对象
         IPage<SysUser> pageInfo = sysUserService.pageList(page,queryWrapper);
-        //分页信息
-        Map<Object, Object> dataMap = Maps.builder()
-                .put("total", pageInfo.getTotal())//总记录数
-                .put("rows", pageInfo.getRecords())//列表数据
-                .put("pages", pageInfo.getPages())//总页数
-                .build();
-        return R.ok(dataMap);
+        return R.ok(PageData.build(pageInfo));
     }
 
     /**
@@ -253,7 +321,7 @@ public class SysUserController extends SuperController {
     private QueryWrapper<SysUser> buildQueryWrapper(SysUserDTO sysUserDTO) {
         QueryWrapper<SysUser> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByDesc(SysUser.CREATE_TIME);
-        if(StrUtil.isNotEmpty(sysUserDTO.getUsername())){
+        if(StrUtil.isNotBlank(sysUserDTO.getUsername())){
             queryWrapper.like(SysUser.USERNAME,sysUserDTO.getUsername());
         }
         if(StrUtil.isNotEmpty(sysUserDTO.getCellphone())){
@@ -275,6 +343,9 @@ public class SysUserController extends SuperController {
             queryWrapper.eq(SysUser.TENANT_ID,sysUserDTO.getTenantId());
             queryWrapper.getParamNameValuePairs().put(SysUser.TENANT_ID,sysUserDTO.getTenantId());
         }
+        if(ArrayUtil.isNotEmpty(sysUserDTO.getUserIds())){
+            queryWrapper.in(SysUser.ID,Arrays.asList(sysUserDTO.getUserIds()));
+        }
         return queryWrapper;
     }
 
@@ -284,7 +355,7 @@ public class SysUserController extends SuperController {
      */
     @Auth(isAuth = false)//不进行权限控制
     @GetMapping("/edit/info")
-    public R getEditUserInfo(Long id){
+    public R<Map<Object, Object>> getEditUserInfo(Long id){
         //1.获取岗位信息
         QueryWrapper<SysPost> sysPostQueryWrapper = new QueryWrapper<>();
         sysPostQueryWrapper.eq(SysPost.STATUS,0).orderByDesc(SysPost.ORDER_NUM);

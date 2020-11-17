@@ -1,5 +1,6 @@
 package com.itgacl.magic4j.libcommon.bean;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -12,7 +13,12 @@ import java.util.List;
 @Data
 public class TreeNode<T,I> {
 
+    @ApiModelProperty("ID")
     private I id;
+
+    @ApiModelProperty("父ID")
     private I parentId;
-    private List<T> children = new ArrayList<>();//子节点
+
+    @ApiModelProperty("子节点")
+    private List<T> children = new ArrayList<>();
 }

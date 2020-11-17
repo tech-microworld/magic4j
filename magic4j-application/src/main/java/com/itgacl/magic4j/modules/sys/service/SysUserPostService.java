@@ -31,4 +31,6 @@ public interface SysUserPostService extends IService<SysUserPost> {
     List<SysUserPostDTO> getList(QueryWrapper queryWrapper);
 
     void bindPost(Long sysUserId, List<Long> postIds);
+
+    String getUserPostNames(Long sysUserId);
 }

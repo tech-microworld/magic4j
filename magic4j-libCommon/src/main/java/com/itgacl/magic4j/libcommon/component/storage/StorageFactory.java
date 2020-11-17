@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 public class StorageFactory {
 
     public static StorageService build(StorageTypeEnum storageType){
-        StorageService storageService;
+        StorageService storageService = null;
         if(StorageTypeEnum.ALIYUN_OSS.getType() == storageType.getType()){
             storageService = SpringContextUtils.getBean(AliyunOssStorageServiceImpl.class);
         }else if(StorageTypeEnum.TENCENT_COS.getType() == storageType.getType()){
@@ -23,11 +23,14 @@ public class StorageFactory {
             storageService = SpringContextUtils.getBean(QiniuKodoStorageServiceImpl.class);
         }else if(StorageTypeEnum.FASTDFS.getType() == storageType.getType()){
             storageService = SpringContextUtils.getBean(FastdfsStorageServiceImpl.class);
+        }else if(StorageTypeEnum.SFTP.getType() == storageType.getType()){
+            storageService = SpringContextUtils.getBean(SftpStorageServiceImpl.class);
         }else if(StorageTypeEnum.LOCAL.getType() == storageType.getType()){
             storageService = SpringContextUtils.getBean(LocalStorageServiceImpl.class);
-        }else {
+        }
+        if(storageService==null){
             //默认实现
-            storageService = SpringContextUtils.getBean(SftpStorageServiceImpl.class);
+            storageService = SpringContextUtils.getBean(LocalStorageServiceImpl.class);
         }
         return storageService;
     }
@@ -37,7 +40,7 @@ public class StorageFactory {
     }
 
     public static StorageService build(String storageType){
-        StorageService storageService;
+        StorageService storageService = null;
         CacheService cacheService = SpringContextUtils.getBean(CacheService.class);
         if(StrUtil.isEmpty(storageType)){
             //获取文件存储方式
@@ -60,11 +63,14 @@ public class StorageFactory {
             storageService = SpringContextUtils.getBean(QiniuKodoStorageServiceImpl.class);
         }else if(StorageTypeEnum.FASTDFS.getDescription().equalsIgnoreCase(storageType)){
             storageService = SpringContextUtils.getBean(FastdfsStorageServiceImpl.class);
+        }else if(StorageTypeEnum.SFTP.getDescription().equalsIgnoreCase(storageType)){
+            storageService = SpringContextUtils.getBean(SftpStorageServiceImpl.class);
         }else if(StorageTypeEnum.LOCAL.getDescription().equalsIgnoreCase(storageType)){
             storageService = SpringContextUtils.getBean(LocalStorageServiceImpl.class);
-        }else {
+        }
+        if(storageService==null){
             //默认实现
-            storageService = SpringContextUtils.getBean(SftpStorageServiceImpl.class);
+            storageService = SpringContextUtils.getBean(LocalStorageServiceImpl.class);
         }
         return storageService;
     }

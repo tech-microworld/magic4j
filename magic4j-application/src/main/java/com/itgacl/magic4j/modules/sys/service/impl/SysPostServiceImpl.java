@@ -2,14 +2,19 @@ package com.itgacl.magic4j.modules.sys.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itgacl.magic4j.common.bean.PageData;
 import com.itgacl.magic4j.modules.sys.dto.SysPostDTO;
 import com.itgacl.magic4j.common.enums.ErrorCodeEnum;
 import com.itgacl.magic4j.common.util.AssertUtil;
 import com.itgacl.magic4j.common.validator.DataValidator;
 import com.itgacl.magic4j.modules.sys.entity.SysPost;
+import com.itgacl.magic4j.modules.sys.excel.PostExcel;
 import com.itgacl.magic4j.modules.sys.mapper.SysPostMapper;
 import com.itgacl.magic4j.modules.sys.service.SysPostService;
+import com.itgacl.magic4j.modules.sys.vo.SysPostVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +72,13 @@ public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> impl
     }
 
     @Override
-    public List<SysPostDTO> getList(QueryWrapper queryWrapper) {
+    public PageData<SysPostVo> pageList(Page<SysPost> page, QueryWrapper<SysPost> queryWrapper) {
+        IPage<SysPost> pageInfo = page(page,queryWrapper);//mybatisPlus分页查询
+        return null;
+    }
+
+    @Override
+    public List<SysPostDTO> getList(QueryWrapper<SysPost> queryWrapper) {
         List<SysPostDTO> sysPostDTOList = new ArrayList<>();
         List<SysPost> sysPostList = list(queryWrapper);
         if(CollectionUtil.isNotEmpty(sysPostList)){
@@ -78,6 +89,11 @@ public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> impl
             });
         }
         return sysPostDTOList;
+    }
+
+    @Override
+    public void importPost(List<PostExcel> data, Boolean isCovered) {
+
     }
 
     /**

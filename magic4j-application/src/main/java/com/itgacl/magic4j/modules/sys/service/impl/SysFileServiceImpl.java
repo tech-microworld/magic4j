@@ -5,7 +5,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.itgacl.magic4j.common.bizCache.BizCacheService;
+import com.itgacl.magic4j.common.cache.biz.BizCacheService;
 import com.itgacl.magic4j.libcommon.component.storage.StorageFactory;
 import com.itgacl.magic4j.libcommon.component.storage.bean.UploadResult;
 import com.itgacl.magic4j.libcommon.constant.Constants;
