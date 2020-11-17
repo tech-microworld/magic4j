@@ -59,7 +59,7 @@
 		<google.guava.version>21.0</google.guava.version>
 		<slf4j.version>1.7.19</slf4j.version>
 		<springfox-swagger2.version>2.9.2</springfox-swagger2.version>
-		<quartz.version>2.3.0</quartz.version>
+		<quartz.version>2.3.2</quartz.version>
 		<wxJava.version>3.8.3.B</wxJava.version>
 		<jpinyin.version>1.1.8</jpinyin.version>
 		<userAgentUtils.version>1.20</userAgentUtils.version>
